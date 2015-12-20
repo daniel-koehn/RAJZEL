@@ -1,0 +1,121 @@
+#-----------------------------------------------------------------------
+#      PARAMETER FILE FOR RAJZEL
+#-----------------------------------------------------------------------
+# description:
+# description/name of model: Marmousi-II
+#
+#-------------------- RAJZEL modus ------------------------------------- 
+forward_modelling_(yes=0)_FATT_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 0
+#
+#-------------------- 2-D Grid -----------------------------------------
+number_of_gridpoints_in_x-direction_(NX) = 500
+number_of_gridpoints_in_y-direction_(NY) = 174
+distance_between_gridpoints(in_m)_(DH) = 20.0
+#
+#-------------------Time Stepping --------------------------------------
+time_of_wave_propagation_(in_sec)_(TIME) = 6.0
+#
+#--------------------Source---------------------------------------------
+# File with source positions:
+SOURCE_FILE = ./source/source_OBC_VSP.dat 
+#
+#--------------------- Model -------------------------------------------
+read_model_parameters_from_MFILE(yes=1)(READMOD) = 1
+MFILE = start/marmousi_II_marine
+#
+#----------------------Snapshots----------------------------------------
+output_of_TT_field_(SNAP)(yes>0) = 0
+increment_x-direction_(IDX) = 1
+increment_y-direction_(IDY) = 1
+data-format_(SNAP_FORMAT)(ASCII(2);BINARY(3)) = 3
+basic_filename_(SNAP_FILE) = ./TT/marmousi
+#
+#---------------------- Receiver ---------------------------------------
+output_of_seismograms_(SEISMO) = 1 
+file_with_receiver_positions_(REC_FILE) = ./receiver/receiver_OBC.dat
+reference_point_for_receiver_coordinate_system_(REFREC) = 0.0 , 0.0
+#
+#-------------------- Towed streamer -----------------------------------
+# parameters for towed streamer acquisition
+The_first_(N_STREAMER)_receivers_in_REC_FILE_belong_to_streamer = 0
+Cable_increment_per_shot_(REC_INCR_X) = 80
+Cable_increment_per_shot_(REC_INCR_Y) = 0
+#
+#----------- FA travel times at receiver positions  --------------------
+Outputfiles_for_FA_travel_times_(PICKS_FILE) = ./picked_times/picks
+#
+#----------- Convergence criterion for Eikonal solver ------------------  
+Convergence_criterion_for_fast_sweeping_technique_(TTNORM) = 1e-10  
+#-----------------------------------------------------------------------
+# each PE is printing log-information to LOG_FILE.MYID
+log-file_for_information_about_progress_of_program_(LOG_FILE) = log/RAJZEL.log
+info_of_processing_element_zero_to_stdout_(yes=1/no=0)_(LOG) = 1
+#-----------------------------------------------------------------------
+# RAJZEL inversion parameters
+# ----------------------------------------------------------------------
+number_of_TDFWI_iterations_(ITERMAX) = 600
+water_level_sweep_adj_(EPS_ADJ) = 1e-10
+output_of_jacobian_(JACOBIAN) = gradient/gradient
+seismograms_of_measured_data_(DATA_DIR) = picked_times/marmousi_true/picks
+cosine_taper_(yes=1/no=0)_(TAPER) = 0
+taper_length_(in_rec_numbers)_(TAPERLENGTH) = 4
+Inverse_Type_(gradient=1/complete=2)_(INVTYPE) = 2
+gradient_taper_geometry_(GRADT1,GRADT2,GRADT3,GRADT4) = 18, 22, 490, 500
+#
+# ----- Definition of gradient taper geometry ----- #
+# Vertical taper
+apply_vertical_taper_(yes=1)_(SWS_TAPER_GRAD_VERT) = 0
+# Horizontal taper
+apply_horizontal_taper_(yes=1)_(SWS_TAPER_GRAD_HOR) = 1
+exponent_of_depth_scaling_for_preconditioning_(EXP_TAPER_GRAD_HOR) = 0.0
+# Circular taper around all sources (not at receiver positions)
+apply_cylindrical_taper_(yes=1)_(SWS_TAPER_GRAD_SOURCES) = 0
+apply_cylindrical_taper_per_shot_(yes=1)_(SWS_TAPER_CIRCULAR_PER_SHOT) = 0
+(1=error_function,2=log_function)_(SRTSHAPE) = 1
+radius_in_m_(SRTRADIUS) = 5.0
+# --> minimum for SRTRADIUS is 5x5 gridpoints
+filtsize_in_gridpoints_(FILTSIZE) = 1
+read_taper_from_file_(yes=1)_(SWS_TAPER_FILE) = 0
+#
+# ----- Output of inverted models ----- #
+output_of_models_(INV_MODELFILE) = model/modelTest
+first_model_to_be_saved_(nfstart) = 2000
+increment_between_saved_models_(nf) = 2000
+#
+# ----- Output of gradients ----- #
+first_gradient_to_be_saved(nfstart_jac) = 2000
+increment_between_saved_gradients_(nf_jac) = 1
+#
+# ----- Upper and lower limits for model parameters ----- #
+upper_limit_for_vp/lambda_(VPUPPERLIM) = 6000.0
+lower_limit_for_vp/lambda_(VPLOWERLIM) = 300.0
+#
+# ----- Optimization-Method ------ #
+gradient_method_(PCG=1/LBFGS=2/GRADIENT=3)_(GRAD_METHOD) = 2
+save_(NLBFGS)_updates_during_LBFGS_optimization = 20
+#
+#----- Definition of smoothing the models vp and vs ----- #
+apply_spatial_filtering_(1=yes)_(MODEL_FILTER) = 0
+filter_length_in_gridpoints_(FILT_SIZE) = 5
+#
+#----- Step length estimation ------# 
+maximum_model_change_of_maximum_model_value_(EPS_SCALE) = 0.01 
+parameters_for_Wolfe_conditions_(C1,C2) = 1e-4, 0.9
+maximum_number_of_attemps_to_find_a_step_length_(STEPMAX) = 10;
+SCALEFAC = 2.0;
+#
+#----- MISFIT LOG FILE -----#
+log_file_for_misfit_evolution_(MISFIT_LOG_FILE) = LOG_TEST.dat
+#
+# ----- Minimum number of iteration per frequency ----- #
+MIN_ITER = 0;
+#
+# ----- Definition of smoothing the Jacobians with 2D-Gaussian ----- #
+apply_spatial_filtering_(yes=1)_(GRAD_FILTER) = 0
+filter_length_in_gridpoints_(FILT_SIZE_GRAD) = 0
+#
+# ----- 1D linear gradient grid search parameters ------------------ #
+Range_of_P_wave_velocity_on_free_surface_(VP0_1,VP0_2,DVP0) = 1500.0, 2501.0, 1.0 
+Range_of_P_wave_velocity_gradient_slopes_(GRAD0_1,GRAD0_2,DGRAD0) = 0.0, 1.6, 0.1
+output_file_for_gridsearch_results_(GRIDSEARCH_FILE) = ./gridsearch/1D_gridsearch.dat 
+#
