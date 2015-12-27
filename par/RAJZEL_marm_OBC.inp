@@ -5,7 +5,7 @@
 # description/name of model: Marmousi-II
 #
 #-------------------- RAJZEL modus ------------------------------------- 
-forward_modelling_(yes=0)_FATT_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 0
+forward_modelling_(yes=0)_FATT_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 2
 #
 #-------------------- 2-D Grid -----------------------------------------
 number_of_gridpoints_in_x-direction_(NX) = 500
@@ -21,7 +21,7 @@ SOURCE_FILE = ./source/source_OBC_VSP.dat
 #
 #--------------------- Model -------------------------------------------
 read_model_parameters_from_MFILE(yes=1)(READMOD) = 1
-MFILE = start/marmousi_II_marine
+MFILE = start/marmousi_II_start_1D
 #
 #----------------------Snapshots----------------------------------------
 output_of_TT_field_(SNAP)(yes>0) = 0

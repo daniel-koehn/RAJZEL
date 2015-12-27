@@ -40,27 +40,14 @@
 int main(int argc, char **argv){
 
 /* variables in main */
-int j, i, iter, iter_true, ntr=0, nshots=0, ** recpos=NULL;
-float eps_scale, L2, *L2t, diff, ** srcpos=NULL;
-float  **S, ** TT, ** lam, ** Vp, ** Vpnp1, ** grad, ** Hgrad, ** gradm;
+int j, i, ntr=0, nshots=0, ** recpos=NULL;
+float ** srcpos=NULL;
+float  **S, ** TT, ** Vp;
 double time1, time8;
-char ext[10], *fileinp;	
-
-/* Variables for the L-BFGS method */
-float * rho_LBFGS, * alpha_LBFGS, * beta_LBFGS; 
-float * y_LBFGS, * s_LBFGS, * q_LBFGS, * r_LBFGS;
-int NLBFGS_class, LBFGS_pointer, NLBFGS_vec;
-
-/*vector for abort criterion*/
-float * L2_hist=NULL;
-
-/* variables for workflow */
-int nstage, stagemax;
+char ext[10], *fileinp, *fileinp1;	
 
 /* FA traveltime data*/
 float * Tmod, * Tobs, * Tres;
-
-FILE *FPL2, *FP_stage;
 
 /* Initialize MPI environment */
 MPI_Init(&argc,&argv);
@@ -79,6 +66,7 @@ if (MYID == 0) info(stdout);
 
 /* read parameters from parameter-file (stdin) */
 fileinp=argv[1];
+fileinp1=argv[2];
 FP=fopen(fileinp,"r");
 if(FP==NULL) {
 	if (MYID == 0){
@@ -92,27 +80,6 @@ if(FP==NULL) {
 
 /* read input file *.inp */
 read_par(FP);
-
-/* read parameters from workflow-file (stdin) */
-fileinp=argv[2];
-FP=fopen(fileinp,"r");
-if(FP==NULL) {
-	if (MYID == 0){
-		printf("\n==================================================================\n");
-		printf(" Cannot open RAJZEL workflow input file %s \n",fileinp);
-		printf("\n==================================================================\n\n");
-		err(" --- ");
-	}
-}
-
-/* estimate number of lines in FWI-workflow */
-i=0;
-stagemax=0;
-while ((i=fgetc(FP)) != EOF)
-if (i=='\n') ++stagemax;
-rewind(FP);
-stagemax--;
-fclose(FP);
 
 if (MYID == 0) note(stdout);
 
@@ -144,66 +111,22 @@ Tmod = vector(1,ntr);
 if(INVMAT){
    Tobs = vector(1,ntr);
    Tres = vector(1,ntr);
-}
-
-/* memory allocation for abort criterion*/
-L2_hist = vector(1,1000);	
+}	
 
 /* memory allocation for travetimes */
 TT =  matrix(1,NY,1,NX);
 Vp =  matrix(1,NY,1,NX);
 S = matrix(1,NY,1,NX);
 
-/* If INVMAT==1 deactivate unnecessary output */
+/* If INVMAT!=0 deactivate unnecessary output */
 INFO=0;
 
-/* If INVMAT==0 deactivate the inversion code and set ITERMAX=1 */
+/* If INVMAT==0 allow unnecessary output */
 if(INVMAT==0){
-   ITERMAX=1;
    INFO=1;
-   stagemax=1;
 }
 
-if(INVMAT==1){
-   lam =  matrix(1,NY,1,NX);
-   grad = matrix(1,NY,1,NX);
-   gradm = matrix(1,NY,1,NX);
-   Hgrad = matrix(1,NY,1,NX);
-   Vpnp1 =  matrix(1,NY,1,NX);
-}
-
-/* If INVMAT==2 only use grid search parameters */
-if(INVMAT==2){
-   ITERMAX=1;
-   INFO=0;
-   stagemax=1;
-   GRAD_METHOD=0;
-}
-
-/* Variables for the L-BFGS method */
-
-if(GRAD_METHOD==2){
-
-  NLBFGS_class = 1;                 /* number of parameter classes */ 
-  NLBFGS_vec = NLBFGS_class*NX*NY;  /* length of one LBFGS-parameter class */
-  LBFGS_pointer = 1;                /* initiate pointer in the cyclic LBFGS-vectors */
-  
-  y_LBFGS  =  vector(1,NLBFGS_vec*NLBFGS);
-  s_LBFGS  =  vector(1,NLBFGS_vec*NLBFGS);
-
-  q_LBFGS  =  vector(1,NLBFGS_vec);
-  r_LBFGS  =  vector(1,NLBFGS_vec);
-
-  rho_LBFGS = vector(1,NLBFGS);
-  alpha_LBFGS = vector(1,NLBFGS);
-  beta_LBFGS = vector(1,NLBFGS);
-  
-}
-
-/* memory of L2 norm */
-L2t = vector(1,4);
-
-if (MYID == 0) info_mem(stdout,NLBFGS_vec,ntr);
+/*if (MYID == 0) info_mem(stdout,NLBFGS_vec,ntr);*/
 
 /* Reading source positions from SOURCE_FILE */ 	
 srcpos=sources(&nshots);
@@ -220,163 +143,24 @@ if (READMOD){
 
 /* calculate slowness S from Vp model*/
 calc_S(Vp,S); 
+
+/* solve Eikonal forward problem only */
+/* ---------------------------------- */
+if(INVMAT==0){
+   forward(S,TT,Tmod,srcpos,nshots,recpos,ntr);
+}
+
+/* First-Arrival Traveltime tomography based on the adjoint method */
+/* --------------------------------------------------------------- */
+if(INVMAT==1){
+   fatt(Vp,S,TT,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,fileinp1);
+}
           
-iter_true=1;
-
-/* Begin of FATT inversion workflow */
-for(nstage=1;nstage<=stagemax;nstage++){
-
-	/* read workflow input file *.inp */
-	fileinp=argv[2];
-	FP_stage=fopen(fileinp,"r");
-	read_par_inv(FP_stage,nstage,stagemax);
-
-	iter=1;
-	/* --------------------------------------
-	 * Begin of FATT iteration loop
-	 * -------------------------------------- */
-	while(iter<=ITERMAX){
-
-		if(GRAD_METHOD==2){
-		  
-		  /* increase pointer to LBFGS-vector*/
-		  if(iter>2){
-		    LBFGS_pointer++;
-		  }
-		  
-		  /* if LBFGS-pointer > NLBFGS -> set LBFGS_pointer=1 */ 
-		  if(LBFGS_pointer>NLBFGS){LBFGS_pointer=1;}
-
-		}
-
-
-		if ((MYID==0)&&(INVMAT==1)){
-		   fprintf(FP,"\n\n\n ------------------------------------------------------------------\n");
-		   fprintf(FP,"\n\n\n                   FATT ITERATION %d \t of %d \n",iter,ITERMAX);
-		   fprintf(FP,"\n\n\n ------------------------------------------------------------------\n");
-		}
-
-		/* Open Log File for L2 norm */
-
-		if(INVMAT==1){
-		  
-		  if(MYID==0){
-		    if(iter_true==1){
-		      FPL2=fopen(MISFIT_LOG_FILE,"w");
-		    }
-
-		    if(iter_true>1){
-		      FPL2=fopen(MISFIT_LOG_FILE,"a");
-		    }
-		  }
-		}
-
-		/* solve Eikonal forward problem only */
-		/* ---------------------------------- */
-		if(INVMAT==0){
-		   forward(S,TT,Tmod,srcpos,nshots,recpos,ntr);
-		}
-
-		/* First-Arrival Traveltime Tomography (FATT) */
-		/* ------------------------------------------ */
-		if(INVMAT==1){
-
-		   /* calculate Vp gradient and objective function */
-		   L2 = grad_obj(grad,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter);
-		   L2t[1] = L2;
-
-		   /* calculate descent directon gradm from gradient grad */
-		   descent(grad,gradm);
-
-		   /* estimate search direction waveconv with ... */
-		   /* ... non-linear preconditioned conjugate gradient method */
-		   if((GRAD_METHOD==1)||(GRAD_METHOD==3)){
-		      PCG(Hgrad,gradm,iter);
-		   }
-
-		   /* ... quasi-Newton l-BFGS method */
-		   if(GRAD_METHOD==2){
-		      LBFGS(Hgrad,grad,gradm,iter,y_LBFGS,s_LBFGS,rho_LBFGS,alpha_LBFGS,Vp,q_LBFGS,r_LBFGS,beta_LBFGS,LBFGS_pointer,NLBFGS,NLBFGS_vec);
-		   }
-
-		   /* check if search direction is a descent direction, otherwise reset l-BFGS history */
-		   check_descent(Hgrad,grad,NLBFGS_vec,y_LBFGS,s_LBFGS,iter);
-
-		   /* Estimate optimum step length ... */
-		   /* ... by line search which satisfies the Wolfe conditions */
-		   eps_scale=wolfels(Hgrad,grad,Vp,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter,eps_scale,L2);
-
-		   if(MYID==0){
-		      fprintf(FPL2,"%e \t %e \t %d \n",eps_scale,L2t[1],nstage);
-		   }
-
-		   /* saving history of final L2*/
-		   L2_hist[iter]=L2t[1];
-
-		   /* calculate optimal change in the material parameters */
-		   /*eps_true=calc_mat_change(waveconv,Vp,Vpnp1,iter,eps_scale,0,nfstart);*/
-		   calc_mat_change_wolfe(Hgrad,Vp,Vpnp1,eps_scale,0);
-		   calc_S(Vp,S);
-
-		    if(MYID==0){
-		       fclose(FPL2);
-		    }
-
-		    /* calculating difference of the actual L2 and before two iterations, dividing with L2_hist[iter-2] provide changing in percent*/
-		    diff=1e20;
-		    if(iter > 2){
-		       diff=fabs((L2_hist[iter-2]-L2_hist[iter])/L2_hist[iter-2]);
-		    }
-
-		    /* are convergence criteria satisfied? */	
-		    if((diff<=PRO)||(eps_scale<1e-10)){
-	
-		       /* model output at the end of given workflow stage */
-		       model_out(Vp,nstage);
-		       iter=0;
-
-		       if(GRAD_METHOD==2){
-
-			  zero_LBFGS(NLBFGS, NLBFGS_vec, y_LBFGS, s_LBFGS, q_LBFGS, r_LBFGS, alpha_LBFGS, beta_LBFGS, rho_LBFGS);
-			  LBFGS_pointer = 1;  
-
-		       }
-
-		       if(MYID==0){
-
-			  if(eps_scale<1e-10){
-
-			     printf("\n Steplength estimation failed. Changing to next FATT stage \n");
-
-			  }else{
-
-			    printf("\n Reached the abort criterion of pro=%e and diff=%e \n Changing to next FATT stage \n",PRO,diff);
-			
-			  }
-
-		       }
-		
-		       break;
-		    }
-
-		} /* end of INVMAT==1 */
-
-	        /* 1D linear gradient model estimation by grid search */
-		/* -------------------------------------------------- */
-		if(INVMAT==2){
-
-                  grid_search(Vp,S,TT,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr);
-
-                }
-
-	iter++;
-	iter_true++;
-
-	/* ====================================== */
-	} /* end of FATT iteration loop*/
-	/* ====================================== */
-
-} /* End of FATT-workflow loop */
+/* 1D linear gradient model estimation by grid search */
+/* -------------------------------------------------- */
+if(INVMAT==2){
+   grid_search(Vp,S,TT,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr);
+}
 
 /* deallocation of memory */
 free_matrix(Vp,1,NY,1,NX);
@@ -391,23 +175,9 @@ if(INVMAT){
 
 }
 
-if(INVMAT==1){
-
-   free_matrix(lam,1,NY,1,NX);
-   free_matrix(grad,1,NY,1,NX);
-   free_matrix(gradm,1,NY,1,NX);
-   free_matrix(Hgrad,1,NY,1,NX);
-   free_matrix(Vpnp1,1,NY,1,NX);
-
-}		   
-
- /* free memory for global source positions */
- free_matrix(srcpos,1,8,1,nshots);
+/* free memory for global source positions */
+free_matrix(srcpos,1,8,1,nshots);
  
- /* free memory for abort criterion */
- free_vector(L2_hist,1,1000);
- free_vector(L2t,1,4);
-
 MPI_Barrier(MPI_COMM_WORLD);
 
 if (MYID==0){

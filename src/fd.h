@@ -55,6 +55,8 @@ void eikonal(float ** S, float ** TT, float * Tmod, float ** srcpos, int ishot, 
 
 void eikonal_adj(float ** TT, float * Tres, float ** lam, int ** recpos, int ntr, int ishot);
 
+void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float *Tres, float ** srcpos, int nshots, int ** recpos, int ntr, char *fileinp1);
+
 void forward(float ** S, float ** TT, float * Tmod,  float ** srcpos, int nshots, int ** recpos, int ntr);
 
 void gauss_filt(float ** waveconv);

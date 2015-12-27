@@ -82,6 +82,7 @@ RAJZEL= \
         eikonal_adj.c \
 	step_length_est.c \
 	median.c \
+        fatt.c \
         forward.c \
 	gauss_filt.c \
         grad_obj.c \
