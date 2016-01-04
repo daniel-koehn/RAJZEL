@@ -1,0 +1,93 @@
+Quickstart to run the Marmousi-II benchmark example in 12 easy steps
+
+Minimum requirements:
+---------------------
+CPU with 1 - 8 cores
+30 MB RAM
+10 minutes computation time
+
+C-Compiler: gcc, icc (recommended)
+MPI-library: OpenMPI, Intel-MPI (recommended)
+other libraries: Fastest Fourier Transform in the West (FFTW) - https://github.com/FFTW/fftw3
+
+Seismic Unix or Matlab for seismic data and model visualization 
+
+1. Clone RAJZEL on your local machine
+
+git clone https://github.com/daniel-koehn/RAJZEL.git
+
+2. In /src adapt the compiler options in the Makefile to your system and compile the RAJZEL code with
+
+make rajzel
+
+3. Clone DENISE-Benchmark on your local machine 
+
+git clone https://github.com/daniel-koehn/DENISE-Benchmark
+
+4. Copy model files for the Marmousi-II model from DENISE-Benchmark to RAJZEL 
+
+cp DENISE-Benchmark/Marmousi-II/start/marmousi_II_marine.* RAJZEL/par/start/
+cp DENISE-Benchmark/Marmousi-II/start/marmousi_II_start_1D.* RAJZEL/par/start/
+
+5. In RAJZEL/par/RAJZEL_marm_OBC.inp check if the following parameters are set correctly  for a forward modelling run
+
+forward_modelling_(yes=0)_FATT_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 0
+MFILE = start/marmousi_II_marine
+
+6. Generate synthetic Marmousi-II data for an OBC acquisition geometry by running RAJZEL on e.g. 8 cores of 
+your CPU from the /par directory:
+
+mpirun -np 8 ../bin/rajzel RAJZEL_marm_OBC.inp FATT_workflow_marmousi.inp 
+
+The forward Eikonal solver is parallelized via a shot parallelization. Therefore, the number of MPI processes 
+should not exceed the total number of shots. For the given problem 8 cores should be sufficient. 
+
+7. For each shot defined in source/source_OBC_VSP.dat the first arrival traveltimes at the receiver positions defined in 
+receiver/receiver_OBC.dat are written to 
+
+picked_times/picks_[shotno].dat
+
+If you set SNAP=1 in RAJZEL_marm_OBC.inp traveltime maps for the whole model are written to 
+
+TT/marmousi_shot_[shotno].tt
+
+which can be visualized with Seismic Unix
+
+ximage n1=174 < marmousi_shot_1.tt
+
+8. In RAJZEL/par/picked_times generate the directory marmousi_true
+
+mkdir marmousi_true
+
+9. Move the first arrival traveltime data of the true model from /picked_times to /picked_times/marmousi_true
+
+mv picks_* marmousi_true/
+
+10. In RAJZEL/par/RAJZEL_marm_OBC.inp change the following parameters
+
+forward_modelling_(yes=0)_FATT_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 1
+MFILE = start/marmousi_II_start_1D
+SNAP=0
+
+11. Start the 2D FATT with 
+
+mpirun -np 1 ../bin/rajzel RAJZEL_marm_OBC.inp FATT_workflow_marmousi.inp
+
+As defined in FATT_workflow_marmousi.inp the FATT is based on an inversion using Gauss-filtered gradients 
+with a filter length of 400 gridpoints and 200 gridpoints in x- and y-direction, respectively. 
+
+The Vp models of the current iteration are saved in:
+
+model/modelTest_vp.bin
+
+12. Depending on the clock speed of your CPU wait approximately  10 minutes ...
+
+The intermediate results after the FATT of each filter stage are saved separatly in  
+
+model/modelTest_vp_stage_1.bin
+
+You can visualize the results with Seismic Unix
+
+ximage n1=174 < model/modelTest_vp_stage_1.bin 
+
+Congratulation, you just finished your first FATT with RAJZEL.
