@@ -59,7 +59,7 @@ void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, 
                         for (l=1;l<=ntr;l++){
                            
                            if((h==recpos[1][l])&&(k==recpos[2][l])){
-			      lamt += Tres[l];
+			      lamt = Tres[l];
                            }
 
                         }
