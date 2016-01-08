@@ -14,8 +14,8 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
 	/* extern variables */
 
         extern float DH;
-	extern int FREE_SURF, NX, NY, NXG, NYG;
-	extern int NPROCX, NPROCY, MYID, POS[3];
+	extern int NX, NY;
+	extern int MYID;
 	extern FILE *FP;
 	
 	/* local variables */
@@ -23,22 +23,19 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
 	int ijc, iy, ix, iii, jjj, xx, yy, srctaper_gridpt, i1, j1;
 
 	extern int GRADT1, GRADT2, GRADT3, GRADT4;
-	float amp, a, *window, grad_tap, **waveconvtmp;
+	float amp, a, *window, grad_tap;
 	char modfile[STRING_SIZE];
 	
 	extern float SRTRADIUS, EXP_TAPER_GRAD_HOR;
 	extern int SRTSHAPE, FILTSIZE;
-        float **m, **edgemat, **mm, **msum, minm, maxm, x, y, rad, **taper_coeff_glob;
+        float x, y, taper;
         float **taper_coeff;
-        float maxrad;
+	float R, frh, f0, r;
 
 	FILE *fp_taper;
 
         taper_coeff= matrix(1,NY,1,NX);
 
-	/*SRTSHAPE=2;
-	SRTRADIUS=25.0;
-	filtsize=2;*/
 
     /* =============== */
     /* Vertical taper  */
@@ -60,7 +57,6 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
 		fprintf(FP," Coefficients for gradient taper are now calculated.\n");
 	}
 	
-	waveconvtmp = matrix(0,NY+1,0,NX+1);
 	window=vector(1,ifw);
 	 
 	 /* Gaussian window */  
@@ -79,10 +75,10 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
 	}
 	
 	/* loop over global grid */
-	for (j=1;j<=NYG;j++){
+	for (j=1;j<=NY;j++){
 	
 	   h=1;
-	   for (i=1;i<=NXG;i++){
+	   for (i=1;i<=NX;i++){
 
                         grad_tap=0.0;
 			
@@ -91,14 +87,10 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
 			   h++;
 			}
 			   			
-			if ((POS[1]==((i-1)/NX)) && 
-		   	 (POS[2]==((j-1)/NY))){
-				ii=i-POS[1]*NX;
-				jj=j-POS[2]*NY;
 
-				taper_coeff[jj][ii]=grad_tap;
+			taper_coeff[j][i]=grad_tap;
 
-			}
+			
 		}
 	}	
 	
@@ -106,64 +98,16 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
 	for (j=1;j<=NY;j++){
 	   for (i=1;i<=NX;i++){
            waveconv[j][i]*=taper_coeff[j][i];
-	   waveconvtmp[j][i] = waveconv[j][i];
            }
 	}
 	
-		
-        /* apply filter at shot and receiver points */
-	for (n=1;n<=nshots;n++)
-	{
-		i = iround(srcpos[1][n]/DH);
-		j = iround(srcpos[2][n]/DH);
-		if ((POS[1]==((i-1)/NX)) && (POS[2]==((j-1)/NY))){
-			ii = i-POS[1]*NX;
-			jj = j-POS[2]*NY;
-			/*waveconvtmp[jj][ii] = 1*waveconv[jj][ii]
-						+ 8*(waveconv[jj-1][ii] + waveconv[jj+1][ii] + waveconv[jj][ii-1] + waveconv[jj][ii+1])
-						+ 4*(waveconv[jj-1][ii-1] + waveconv[jj-1][ii+1] + waveconv[jj+1][ii+1] + waveconv[jj+1][ii-1]);
-			waveconvtmp[jj][ii] = waveconvtmp[jj][ii]/49;*/
-			
-			waveconvtmp[jj][ii] = 0.0;
-		}
-	}
-
-	for (j=1;j<=NY;j++){
-		for (i=1;i<=NX;i++){
-        		waveconv[j][i] = waveconvtmp[j][i];
-		}
-	}	
-	
-	for (n=1;n<=ntr;n++)
-	{
-		i = recpos[1][n];
-		j = recpos[2][n];
-		if ((POS[1]==((i-1)/NX)) && (POS[2]==((j-1)/NY))){
-			ii = i-POS[1]*NX;
-			jj = j-POS[2]*NY;
-			/*waveconvtmp[jj][ii] = 1*waveconv[jj][ii]
-						+ 8*(waveconv[jj-1][ii] + waveconv[jj+1][ii] + waveconv[jj][ii-1] + waveconv[jj][ii+1])
-						+ 4*(waveconv[jj-1][ii-1] + waveconv[jj-1][ii+1] + waveconv[jj+1][ii+1] + waveconv[jj+1][ii-1]);
-			waveconvtmp[jj][ii] = waveconvtmp[jj][ii]/49;*/
-			
-			waveconvtmp[jj][ii] = 0.0;
-			
-		}
-	}
-
-	for (j=1;j<=NY;j++){
-		for (i=1;i<=NX;i++){
-        		waveconv[j][i] = waveconvtmp[j][i];
-		}
-	}	
 
 	sprintf(modfile,"taper_coeff_vert.bin");
 	writemod(modfile,taper_coeff,3); 
 
 
-
 	free_vector(window,1,ifw);
-	free_matrix(waveconvtmp,0,NX+1,0,NY+1);
+
 	}
 
         
@@ -186,7 +130,6 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
                 fprintf(FP," Coefficients for gradient taper are now calculated.\n");
         }
 
-        waveconvtmp = matrix(0,NY+1,0,NX+1);
         window=vector(1,ifw);
          
         /* Gaussian window */  
@@ -202,8 +145,8 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
 
         /* loop over global grid */
 	h=1;
-        for (j=1;j<=NYG;j++){
-           for (i=1;i<=NXG;i++){
+        for (j=1;j<=NY;j++){
+           for (i=1;i<=NX;i++){
 
                         grad_tap=0.0;
 
@@ -226,16 +169,9 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
                         
                         /*grad_tap=((float)(j*DH));*/
 			
-			  
-                        if ((POS[1]==((i-1)/NX)) && 
-                         (POS[2]==((j-1)/NY))){
-                                ii=i-POS[1]*NX;
-                                jj=j-POS[2]*NY;
 
-                                taper_coeff[jj][ii]=grad_tap;
-
-                        }
-
+                        taper_coeff[j][i]=grad_tap;
+                  
                 }
 		
 	   if(j>=GRADT1){h++;}
@@ -245,59 +181,13 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
         for (j=1;j<=NY;j++){
            for (i=1;i<=NX;i++){
            waveconv[j][i]*=taper_coeff[j][i];
-           waveconvtmp[j][i] = waveconv[j][i];
            }
         }
 
-
-
-        /* apply filter at shot and receiver points */
-        /*for (n=1;n<=nshots;n++)
-        {
-                i = iround(srcpos[1][n]/DH);
-                j = iround(srcpos[2][n]/DH);
-                if ((POS[1]==((i-1)/NX)) && (POS[2]==((j-1)/NY))){
-                        ii = i-POS[1]*NX;
-                        jj = j-POS[2]*NY;
-                        waveconvtmp[jj][ii] = 1*waveconv[jj][ii]
-                                                + 8*(waveconv[jj-1][ii] + waveconv[jj+1][ii] + waveconv[jj][ii-1] + waveconv[jj][ii+1])
-                                                + 4*(waveconv[jj-1][ii-1] + waveconv[jj-1][ii+1] + waveconv[jj+1][ii+1] + waveconv[jj+1][ii-1]);
-                        waveconvtmp[jj][ii] = waveconvtmp[jj][ii]/49;
-                }
-        }
-
-        for (j=1;j<=NY;j++){
-                for (i=1;i<=NX;i++){
-                        waveconv[j][i] = waveconvtmp[j][i];
-                }
-        }
-
-        for (n=1;n<=ntr;n++)
-        {
-                i = recpos[1][n];
-                j = recpos[2][n];
-                if ((POS[1]==((i-1)/NX)) && (POS[2]==((j-1)/NY))){
-                        ii = i-POS[1]*NX;
-                        jj = j-POS[2]*NY;
-                        waveconvtmp[jj][ii] = 1*waveconv[jj][ii]
-                                                + 8*(waveconv[jj-1][ii] + waveconv[jj+1][ii] + waveconv[jj][ii-1] + waveconv[jj][ii+1])
-                                                + 4*(waveconv[jj-1][ii-1] + waveconv[jj-1][ii+1] + waveconv[jj+1][ii+1] + waveconv[jj+1][ii-1]);
-                        waveconvtmp[jj][ii] = waveconvtmp[jj][ii]/49;
-                }
-        }
-
-        for (j=1;j<=NY;j++){
-                for (i=1;i<=NX;i++){
-                        waveconv[j][i] = waveconvtmp[j][i];
-                }
-        }*/
-
         sprintf(modfile,"taper_coeff_hor.bin");
         writemod(modfile,taper_coeff,3); 
-
-
         free_vector(window,1,ifw);
-        free_matrix(waveconvtmp,0,NX+1,0,NY+1);
+
         } /* end of sws==2 */
 
         /* =================================== */
@@ -305,221 +195,64 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
 	/* =================================== */
 	
 	if(sws==3) {
-                /* Convert from meters to gridpoints -> minimum 5x5 gridpoints */
-                srctaper_gridpt = (int)(ceil(2.0*SRTRADIUS/DH));
-                if (srctaper_gridpt<5)  srctaper_gridpt = 5;
 
-                m               = matrix(1,srctaper_gridpt,1,srctaper_gridpt);
-                edgemat         = matrix(1,4,1,1);
-                mm              = matrix(1,NYG,1,NXG);
-                msum            = matrix(1,NYG,1,NXG);
-                taper_coeff_glob= matrix(1,NYG,1,NXG);
-		waveconvtmp     = matrix(0,NY+1,0,NX+1);
+        R = SRTRADIUS;
+	frh = 0.1;
+	f0 = 1e-3;
+	a = - (log(frh-f0)-log(1.0-f0))/log(2.0);
 
-                for (iy=1;iy<=NYG;iy++)
-                        for (ix=1;ix<=NXG;ix++)  msum[iy][ix] = 1.0;
-
-                MPI_Barrier(MPI_COMM_WORLD);
-
-                /*****************************/
-                /* Taper at source positions */
-                /*****************************/
-
-                a = 1.0;
-                maxrad = sqrt(2.0*SRTRADIUS*SRTRADIUS);
-                for (j=1;j<=srctaper_gridpt;j++) {
-                        for (i=1;i<=srctaper_gridpt;i++) {
-                                x = ((float)i-((float)srctaper_gridpt)/2.0-0.5)*DH;
-                                y = ((float)j-((float)srctaper_gridpt)/2.0-0.5)*DH;
-                                rad = sqrt(x*x+y*y);
-
-                                switch (SRTSHAPE) {
-                                case 1:
-                                        m[j][i] = erf(a*rad/maxrad);
-                                        break;
-                                case 2:
-                                        if (rad>0)      m[j][i] = log(rad);
-                                        else            m[j][i] = 0.0;
-                                        break;
-                                }
-                        }
-                }
-
-                /* generate local taper matrix */
-                minm = minimum_m(m,srctaper_gridpt,srctaper_gridpt);
-                for (j=1;j<=srctaper_gridpt;j++)
-                        for (i=1;i<=srctaper_gridpt;i++)  m[j][i] -= minm;
-
-                /* normalize taper matrix to max of values at the centre of all 4 taper area edges,     */
-                /* not the global maximum, which is located at the corners                              */
-                edgemat[1][1] = m[1][srctaper_gridpt/2];
-                edgemat[2][1] = m[srctaper_gridpt/2][1];
-                edgemat[3][1] = m[srctaper_gridpt/2][srctaper_gridpt];
-                edgemat[4][1] = m[srctaper_gridpt][srctaper_gridpt/2];
-                maxm = maximum_m(edgemat,1,4);
-                for (j=1;j<=srctaper_gridpt;j++)
-                        for (i=1;i<=srctaper_gridpt;i++) {
-                                m[j][i] /= maxm;
-                                if (m[j][i]>1.0)  m[j][i] = 1.0;
-                        }
-
-                /* get central position within the taper */
-                ijc = (int)(ceil((float)srctaper_gridpt/2));
-
-                /*********************/
-                /* loop over sources */
-                for (n=1;n<=nshots;n++) {
-                        for (iy=1;iy<=NYG;iy++)
-                                for (ix=1;ix<=NXG;ix++)  mm[iy][ix] = 1.0;
-
-                        i = iround(srcpos[1][n]/DH);
-                        j = iround(srcpos[2][n]/DH);
-                        for (iy=1;iy<=srctaper_gridpt;iy++) {
-                                for (ix=1;ix<=srctaper_gridpt;ix++) {
-                                        xx = i + ix - ijc;
-                                        yy = j + iy - ijc;
-                                        if ((xx<1) || (xx>NXG) || (yy<1) || (yy>NYG))  continue;
-                                        mm[yy][xx] = m[iy][ix];
-                                }
-                        }
-
-/*                      for (iy=1;iy<=NYG;iy++)
-                                for (ix=1;ix<=NXG;ix++)  msum[iy][ix] += mm[iy][ix];
-*/
-                        for (iy=1;iy<=NYG;iy++)
-                                for (ix=1;ix<=NXG;ix++)
-                                        if (msum[iy][ix] > mm[iy][ix])
-                                                msum[iy][ix] = mm[iy][ix];
-
-                }
-
-                /***********************/
-                /* loop over receivers */
-                /*for (n=1;n<=ntr;n++) {
-                        for (iy=1;iy<=NYG;iy++)
-                                for (ix=1;ix<=NXG;ix++)  mm[iy][ix] = 1.0;
-
-                        i = recpos[1][n];
-                        j = recpos[2][n];
-                        for (iy=1;iy<=srctaper_gridpt;iy++) {
-                                for (ix=1;ix<=srctaper_gridpt;ix++) {
-                                        xx = i + ix - ijc;
-                                        yy = j + iy - ijc;
-                                        if ((xx<1) || (xx>NXG) || (yy<1) || (yy>NYG))  continue;
-                                        mm[yy][xx] = m[iy][ix];
-                                }
-                        }*/
-
-/*                      for (iy=1;iy<=NYG;iy++)    Die kommenden zwei Zeilen wurden von Daniel auskommentiert.
-                                for (ix=1;ix<=NXG;ix++)  msum[iy][ix] += mm[iy][ix];
-*/
-                       /* for (iy=1;iy<=NYG;iy++)
-                                for (ix=1;ix<=NXG;ix++)
-                                        if (msum[iy][ix] > mm[iy][ix])
-                                                msum[iy][ix] = mm[iy][ix];
-
-                }*/
-
-                minm = minimum_m(msum,NXG,NYG);
-                for (iy=1;iy<=NYG;iy++)
-                        for (ix=1;ix<=NXG;ix++)  msum[iy][ix] -= minm;
-
-                maxm = maximum_m(msum,NXG,NYG);
-                for (iy=1;iy<=NYG;iy++)
-                        for (ix=1;ix<=NXG;ix++) {
-                                taper_coeff_glob[iy][ix] = msum[iy][ix]/maxm;
-
-                                if ((POS[1]==((ix-1)/NX)) && (POS[2]==((iy-1)/NY))){
-                                        ii = ix-POS[1]*NX;
-                                        jj = iy-POS[2]*NY;
-                                        /*Diese Zeile wurde von Daniel auskommentiert: taper_coeff[jj][ii] = taper_coeff_glob[iy][ix] * ((float)(iy*DH));*/
-					/*taper_coeff[jj][ii] = ((float)(iy*DH)) * ((float)(iy*DH)) * ((float)(iy*DH));*/
-					taper_coeff[jj][ii]=msum[iy][ix]/maxm;
-                                }
-                        }
-			
-	/* apply taper on local gradient */
-        for (j=1;j<=NY;j++){
-           for (i=1;i<=NX;i++){
-           waveconv[j][i]*=taper_coeff[j][i];
-           waveconvtmp[j][i] = waveconv[j][i];
-           }
-        }	
-		
-	 /* apply filter at shot and receiver points */
-	for (n=1;n<=nshots;n++)
-	{
-		i1 = iround(srcpos[1][n]/DH);
-		j1 = iround(srcpos[2][n]/DH);
-		
-		for (i=i1-FILTSIZE;i<=i1+FILTSIZE;i++){
-		   for (j=j1-FILTSIZE;j<=j1+FILTSIZE;j++){
-		       if ((POS[1]==((i-1)/NX)) && (POS[2]==((j-1)/NY))){
-			     ii = i-POS[1]*NX;
-			     jj = j-POS[2]*NY;
-			     /*waveconvtmp[jj][ii] = 1*waveconv[jj][ii]
-				       		+ 8*(waveconv[jj-1][ii] + waveconv[jj+1][ii] + waveconv[jj][ii-1] + waveconv[jj][ii+1])
-						+ 4*(waveconv[jj-1][ii-1] + waveconv[jj-1][ii+1] + waveconv[jj+1][ii+1] + waveconv[jj+1][ii-1]);
-			      waveconvtmp[jj][ii] = waveconvtmp[jj][ii]/49;*/
-			      if (jj>0){
-			         waveconvtmp[jj][ii] = 0.0;
-			         taper_coeff[jj][ii] = 0.0;
-			      }
-		        }
-		    }
-		}
-		
-		
-	}
-
+        /*****************************/
+        /* Taper at source positions */
+        /*****************************/
+	for (n=1;n<=nshots;n++) {
+	     for (iy=1;iy<=NY;iy++){
+                  for (ix=1;ix<=NX;ix++){
 	
-	/*for (n=1;n<=ntr;n++)
-	{
-		i1 = recpos[1][n];
-		j1 = recpos[2][n];
-		
-            for (i=i1-FILTSIZE;i<=i1+FILTSIZE;i++){
-		   for (j=j1-FILTSIZE;j<=j1+FILTSIZE;j++){
-		
-		       if ((POS[1]==((i-1)/NX)) && (POS[2]==((j-1)/NY))){
-			    ii = i-POS[1]*NX;
-			    jj = j-POS[2]*NY;   */
-			    /* Die kommenden 4 Zeilen wurden von Daniel auskommentiert. waveconvtmp[jj][ii] = 1*waveconv[jj][ii]
-						+ 8*(waveconv[jj-1][ii] + waveconv[jj+1][ii] + waveconv[jj][ii-1] + waveconv[jj][ii+1])
-						+ 4*(waveconv[jj-1][ii-1] + waveconv[jj-1][ii+1] + waveconv[jj+1][ii+1] + waveconv[jj+1][ii-1]);
-			      waveconvtmp[jj][ii] = waveconvtmp[jj][ii]/49;*/
-			
-		/*	waveconvtmp[jj][ii] = 0.0;
-			
+	               /* calculate global coordinates */
+		       x = ix * DH;
+		       y = iy * DH; 
+		       r = sqrt(pow((x-srcpos[1][n]),2.0)+pow((y-srcpos[2][n]),2.0));
+		       taper = 1.0;
+		  
+		       if(r<=R){
+		          taper = f0 + (1.0 - f0) * pow((0.5 - 0.5 *cos(PI*r/R)),a);		 
 		       }
-		   }
-	     }	       
-	}*/		
-		
-        /* apply taper on local gradient */
-        for (j=1;j<=NY;j++){
-           for (i=1;i<=NX;i++){
-           waveconv[j][i] = waveconvtmp[j][i];
-           }
+		  
+		       taper_coeff[iy][ix] = taper;
+		       waveconv[iy][ix] *= taper;
+		       
+                  }
+	     }
         }
 	
+        /*****************************/
+        /* Taper at receiver positions */
+        /*****************************/
+	for (n=1;n<=ntr;n++) {
+	     for (iy=1;iy<=NY;iy++){
+                  for (ix=1;ix<=NX;ix++){
 	
-                free_matrix(m,1,srctaper_gridpt,1,srctaper_gridpt);
-                free_matrix(edgemat,1,4,1,1);
-                free_matrix(mm,1,NYG,1,NXG);
-                free_matrix(msum,1,NYG,1,NXG);
-                free_matrix(taper_coeff_glob,1,NYG,1,NXG);
-		free_matrix(waveconvtmp,0,NX+1,0,NY+1);
-        
+		       x = ix * DH;
+		       y = iy * DH; 
+		       r = sqrt(pow((x-(recpos[1][n]*DH)),2.0)+pow((y-(recpos[2][n]*DH)),2.0));
+		       taper = 1.0;
+		  
+		       if(r<=R){
+		         taper = f0 + (1.0 - f0) * pow((0.5 - 0.5 *cos(PI*r/R)),a);
+		       }
+		  
+		           taper_coeff[iy][ix] = taper;
+		           waveconv[iy][ix] *= taper;
+		      
+                  }
+	     }
+	}
 	
 	
+	/*
+        sprintf(modfile,"taper_coeff_%i.bin",ishot);
+        writemod(modfile,taper_coeff,3); */		
 
- 
-		
-	MPI_Barrier(MPI_COMM_WORLD);
-        sprintf(modfile,"taper_coeff_sources.bin");
-        writemod(modfile,taper_coeff,3); 
-	
 	}
 
     /* ======================== */
