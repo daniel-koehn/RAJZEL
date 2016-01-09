@@ -52,8 +52,8 @@ float grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmo
 	L2sum = 0.0;
         MPI_Barrier(MPI_COMM_WORLD);
 	MPI_Allreduce(&L2,&L2sum,1,MPI_FLOAT,MPI_SUM,MPI_COMM_WORLD);
-        L2 = 0.5 * L2sum;
-	
+        L2 = 0.5 * L2sum;	
+
 	/*if(MYID==0){
 	  printf("L2sum: %e\n", L2sum);
         }*/

@@ -28,28 +28,33 @@ void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, 
 		for (j=2;j<=NY-1;j++){
 
                         /* assemble equation (3.6) in Leung & Qian (2006) */
-                        ap = -(TT[k][h+1]-TT[k][h])/DH;
-                        am = -(TT[k][h]-TT[k][h-1])/DH;
+                        ap = (TT[k][h+1]-TT[k][h])/DH;
+                        am = (TT[k][h]-TT[k][h-1])/DH;
                         
-			bp = -(TT[k+1][h]-TT[k][h])/DH;
-                        bm = -(TT[k][h]-TT[k-1][h])/DH;
+			bp = (TT[k+1][h]-TT[k][h])/DH;
+                        bm = (TT[k][h]-TT[k-1][h])/DH;
 
-			app = (ap + fabs(ap))/DH;
-			apm = (ap - fabs(ap))/DH;
+			app = (ap + fabs(ap))/2.0;
+			apm = (ap - fabs(ap))/2.0;
 
-			amp = (am + fabs(am))/DH;
-			amm = (am - fabs(am))/DH;
+			amp = (am + fabs(am))/2.0;
+			amm = (am - fabs(am))/2.0;
 
-                        bpp = (bp + fabs(bp))/DH;
-			bpm = (bp - fabs(bp))/DH;
+                        bpp = (bp + fabs(bp))/2.0;
+			bpm = (bp - fabs(bp))/2.0;
 
-			bmp = (bm + fabs(bm))/DH;
-			bmm = (bm - fabs(bm))/DH;
+			bmp = (bm + fabs(bm))/2.0;
+			bmm = (bm - fabs(bm))/2.0;
 
-                        lhs = (app-amm)/DH + (bpp-bmm)/DH;
-                        rhs = (amp*lam[k][h-1]-apm*lam[k][h+1])/DH + (bmp*lam[k-1][h]-bpm*lam[k+1][h])/DH;
                         
+                        /* Leung & Qian (2006) */
+                        /* lhs = (app-amm)/DH + (bpp-bmm)/DH;
+                        rhs = (amp*lam[k][h-1]-apm*lam[k][h+1])/DH + (bmp*lam[k-1][h]-bpm*lam[k+1][h])/DH;*/
                         
+                        /* Taillandier et al. (2009) */
+                        lhs = (apm-amp)/DH + (bpm-bmp)/DH;
+                        rhs = (amm*lam[k][h-1]-app*lam[k][h+1])/DH + (bmm*lam[k-1][h]-bpp*lam[k+1][h])/DH;
+
                         lamt = rhs/(lhs+EPS_ADJ);
                        
 

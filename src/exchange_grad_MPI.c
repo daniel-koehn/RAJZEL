@@ -16,7 +16,7 @@ void exchange_grad_MPI(float ** grad){
 	int i, j, h;
 	float * grad_vec;
 	
-	grad_vec = (float *)malloc(NX*NY * sizeof(float));
+	grad_vec = (float *)malloc((NX+1)*(NY+1) * sizeof(float));
 
 	
 	/* store gradient in vector */

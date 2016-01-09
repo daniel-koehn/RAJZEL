@@ -28,7 +28,7 @@ void eikonal_adj(float ** TT, float * Tres, float ** lam, int ** recpos, int ntr
         }		                                                 
 
 	/* initialize boundary condition for lambda */
-	init_travel_adj(lam,recpos,ntr,Tres);
+	init_travel_adj(lam,recpos,ntr,Tres,TT);
 
         /* initialize l1 norm of lam - lamold */
         lnorm1 = 10.0 * TIME;
@@ -39,11 +39,11 @@ void eikonal_adj(float ** TT, float * Tres, float ** lam, int ** recpos, int ntr
                 /* save old TT values */
                 store_mat(lam,lamold,NX,NY);
 
-                /* sweep with order according to Zhao (2004) */
+                /* sweep with order according to Taillandier (2009) */
                 sweep_adj(lam,TT,Tres,recpos,ntr,2,NX-1,1,2,NY-1,1);
+                sweep_adj(lam,TT,Tres,recpos,ntr,2,NX-1,1,NY-1,2,-1);
                 sweep_adj(lam,TT,Tres,recpos,ntr,NX-1,2,-1,2,NY-1,1);
                 sweep_adj(lam,TT,Tres,recpos,ntr,NX-1,2,-1,NY-1,2,-1);
-                sweep_adj(lam,TT,Tres,recpos,ntr,2,NX-1,1,NY-1,2,-1);
 
 		/* calculate l1 norm of lam - lamold */
 		lnorm1 = norm1(lam,lamold);
