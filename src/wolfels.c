@@ -12,7 +12,7 @@
 float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr, int iter, float alpha, float L2){
 
 	/* declaration of global variables */
-        extern int NX, NY, GRAD_METHOD, STEPMAX;
+        extern int NX, NY, GRAD_METHOD, STEPMAX, MYID;
         extern float EPS_SCALE, C1, C2, SCALEFAC;
 
         /* declaration of local variables */
@@ -47,8 +47,10 @@ float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** T
         nu = 1e30;
         alpha = alpha/SCALEFAC;
 
-        printf(" Estimate step length by Wolfe line search \n");
-        printf(" ----------------------------------------- \n");
+        if(MYID==0){
+           printf(" Estimate step length by Wolfe line search \n");
+           printf(" ----------------------------------------- \n");
+        }
 
 	while(done!=1){
 
@@ -60,8 +62,10 @@ float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** T
     
               if(lsiter < STEPMAX){
 
-                 printf("gradient evaluation %d ... \n",lsiter);
-                 printf("alpha = %e ... \n",alpha);
+                 if(MYID==0){
+                    printf("gradient evaluation %d ... \n",lsiter);
+                    printf("alpha = %e ... \n",alpha);
+                 }
 
                  calc_mat_change_wolfe(Hgrad,Vp,Vpnp1,alpha,1);
                  calc_S(Vpnp1,Snp1);
@@ -78,11 +82,13 @@ float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** T
               g0s0=dotp_matrix(grad,Hgrad,NX,NY);
               gts0=dotp_matrix(gt,Hgrad,NX,NY);
 
-              printf("Wolfe Conditions \n");
-              printf("---------------- \n");
-              /*printf("ft = %e \t <= L2  = %e \n",ft,L2);*/
-              printf("ft = %e \t <= L2 + C1*alpha*g0s0 = %e \n",ft,L2 + C1*alpha*g0s0);
-              printf("gts0 = %e \t >= C2*g0s0 = %e \n",gts0,C2*g0s0);
+              if(MYID==0){
+                 printf("Wolfe Conditions \n");
+                 printf("---------------- \n");
+                 /*printf("ft = %e \t <= L2  = %e \n",ft,L2);*/
+                 printf("ft = %e \t <= L2 + C1*alpha*g0s0 = %e \n",ft,L2 + C1*alpha*g0s0);
+                 printf("gts0 = %e \t >= C2*g0s0 = %e \n",gts0,C2*g0s0);
+              }
  
               if (ft > (L2 + C1*alpha*g0s0)){
                   nu = alpha;
@@ -94,7 +100,9 @@ float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** T
 
         }
 
-        printf("final alpha = %e \n",alpha);
+        if(MYID==0){
+           printf("final alpha = %e \n",alpha);
+        }
 
         free_matrix(Snp1,1,NY,1,NX);
         free_matrix(Vpnp1,1,NY,1,NX);

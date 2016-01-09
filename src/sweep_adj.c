@@ -49,11 +49,9 @@ void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, 
                         lhs = (app-amm)/DH + (bpp-bmm)/DH;
                         rhs = (amp*lam[k][h-1]-apm*lam[k][h+1])/DH + (bmp*lam[k-1][h]-bpm*lam[k+1][h])/DH;
                         
-                        if(lhs > EPS_ADJ){
-                           lamt = rhs/lhs;
-                        }else{
-                           lamt=0.0;
-                        }
+                        
+                        lamt = rhs/(lhs+EPS_ADJ);
+                       
 
                         /* add data residuals at receiver positions */
                         for (l=1;l<=ntr;l++){

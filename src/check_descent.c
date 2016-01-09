@@ -22,9 +22,11 @@ void check_descent(float ** Hgrad, float ** grad, int NLBFGS_vec, float * y_LBFG
 
         p = -nom/denom;
 
-        printf("p = %e \n",p);
-        /*printf("nom = %e \n",nom);
-        printf("denom = %e \n",denom);*/
+        if(MYID==0){
+           printf("p = %e \n",p);
+           /*printf("nom = %e \n",nom);
+           printf("denom = %e \n",denom);*/
+        }
 
         if (p<0.0){
         

@@ -36,12 +36,8 @@ float dotp(float * vec1, float *vec2, int n1, int n2, int sw)
                h++;
           }
         }   
-	
-   /* Compute maximum value on all CPUs */
-   sum = 0.0;
-   MPI_Allreduce(&tmp,&sum,1,MPI_FLOAT,MPI_SUM,MPI_COMM_WORLD);
-   
-   return sum;
+
+   return tmp;
 }
 
 

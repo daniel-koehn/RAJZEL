@@ -8,8 +8,10 @@
 #include "fd.h"
 
 float dotp_matrix(float ** A, float ** B, int NX, int NY){
+
 	float sum;
 	int i,j;
+
         sum = 0.0;        
 	for (i=1;i<=NX;i++){
 	   for (j=1;j<=NY;j++){

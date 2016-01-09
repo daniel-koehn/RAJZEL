@@ -148,11 +148,13 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 			   /* estimate search direction waveconv with ... */
 			   /* ... non-linear preconditioned conjugate gradient method */
 			   if((GRAD_METHOD==1)||(GRAD_METHOD==3)){
+                              MPI_Barrier(MPI_COMM_WORLD);
 			      PCG(Hgrad,gradm,iter);
 			   }
 
 			   /* ... quasi-Newton l-BFGS method */
 			   if(GRAD_METHOD==2){
+                              MPI_Barrier(MPI_COMM_WORLD);
 			      LBFGS(Hgrad,grad,gradm,iter,y_LBFGS,s_LBFGS,rho_LBFGS,alpha_LBFGS,Vp,q_LBFGS,r_LBFGS,beta_LBFGS,LBFGS_pointer,NLBFGS,NLBFGS_vec);
 			   }
 
@@ -161,6 +163,7 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 
 			   /* Estimate optimum step length ... */
 			   /* ... by line search which satisfies the Wolfe conditions */
+                           MPI_Barrier(MPI_COMM_WORLD);
 			   eps_scale=wolfels(Hgrad,grad,Vp,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter,eps_scale,L2);
 
 			   if(MYID==0){
@@ -172,6 +175,7 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 
 			   /* calculate optimal change in the material parameters */
 			   /*eps_true=calc_mat_change(waveconv,Vp,Vpnp1,iter,eps_scale,0,nfstart);*/
+                           MPI_Barrier(MPI_COMM_WORLD);
 			   calc_mat_change_wolfe(Hgrad,Vp,Vpnp1,eps_scale,0);
 			   calc_S(Vp,S);
 

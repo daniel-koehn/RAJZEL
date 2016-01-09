@@ -5,7 +5,7 @@
 
 # source code for model generation
 
-MODEL = 1D_start.c
+MODEL = 1D_start_marm.c
 MODEL_GRID_SEARCH = 1D_start_gridsearch.c
 EXEC= ../bin
 
@@ -20,16 +20,16 @@ EXEC= ../bin
 # CC=cc
 
 # On Linux NEC-cluster with Intel-MPI
-#CC=mpiicc 
-#LFLAGS=-lm -lfftw3 -ftz -lstdc++
-#CFLAGS=-O3 -xAVX -ipo -fno-fnalias -restrict
-#SFLAGS=-L$//sfs/fs4/work-sh2/sungw331/fftw-3.3.4/lib
-#IFLAGS=-I$//sfs/fs4/work-sh2/sungw331/fftw-3.3.4/include
+CC=mpiicc 
+LFLAGS=-lm -lfftw3 -ftz -lstdc++
+CFLAGS=-O3 -xAVX -ipo -fno-fnalias -restrict
+SFLAGS=-L$//sfs/fs4/work-sh2/sungw331/fftw-3.3.4/lib
+IFLAGS=-I$//sfs/fs4/work-sh2/sungw331/fftw-3.3.4/include
 
 # On Desktop computer with LinuxMint 17, OpenMPI and gcc 4.8.2
-CC=mpicc
-LFLAGS=-lm -lfftw3 -lstdc++
-CFLAGS=-O3 -fno-stack-protector
+#CC=mpicc
+#LFLAGS=-lm -lfftw3 -lstdc++
+#CFLAGS=-O3 -fno-stack-protector
 
 # On HLRN system
 #CC=mpcc
@@ -80,6 +80,7 @@ RAJZEL= \
         dotp_matrix.c \
         eikonal.c \
         eikonal_adj.c \
+        exchange_grad_MPI.c \
 	step_length_est.c \
 	median.c \
         fatt.c \
@@ -113,6 +114,7 @@ RAJZEL= \
     	receiver.c \
 	sources.c \
 	solvelin.c \
+        sum_grad_MPI.c \
         sweep.c \
         sweep_adj.c \
         store_mat.c \

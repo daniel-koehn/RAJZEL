@@ -57,7 +57,11 @@ float grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmo
 	/*if(MYID==0){
 	  printf("L2sum: %e\n", L2sum);
         }*/
+	
+	/* sum gradients over all MPI processes */
+	sum_grad_MPI(grad);
 
+        /* gradient preconditioning */
         precond(grad,nshots,srcpos,recpos,ntr,iter);
 
         /* deallocate memory */

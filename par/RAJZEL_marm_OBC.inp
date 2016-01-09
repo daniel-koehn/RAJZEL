@@ -5,7 +5,7 @@
 # description/name of model: Marmousi-II
 #
 #-------------------- RAJZEL modus ------------------------------------- 
-forward_modelling_(yes=0)_FATT_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 2
+forward_modelling_(yes=0)_FATT_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 0
 #
 #-------------------- 2-D Grid -----------------------------------------
 number_of_gridpoints_in_x-direction_(NX) = 500
@@ -21,7 +21,7 @@ SOURCE_FILE = ./source/source_OBC_VSP.dat
 #
 #--------------------- Model -------------------------------------------
 read_model_parameters_from_MFILE(yes=1)(READMOD) = 1
-MFILE = start/marmousi_II_start_1D
+MFILE = start/marmousi_II_marine
 #
 #----------------------Snapshots----------------------------------------
 output_of_TT_field_(SNAP)(yes>0) = 0
@@ -54,13 +54,13 @@ info_of_processing_element_zero_to_stdout_(yes=1/no=0)_(LOG) = 1
 # RAJZEL inversion parameters
 # ----------------------------------------------------------------------
 number_of_TDFWI_iterations_(ITERMAX) = 600
-water_level_sweep_adj_(EPS_ADJ) = 1e-10
+water_level_sweep_adj_(EPS_ADJ) = 0.0
 output_of_jacobian_(JACOBIAN) = gradient/gradient
 seismograms_of_measured_data_(DATA_DIR) = picked_times/marmousi_true/picks
 cosine_taper_(yes=1/no=0)_(TAPER) = 0
 taper_length_(in_rec_numbers)_(TAPERLENGTH) = 4
 Inverse_Type_(gradient=1/complete=2)_(INVTYPE) = 2
-gradient_taper_geometry_(GRADT1,GRADT2,GRADT3,GRADT4) = 18, 22, 490, 500
+gradient_taper_geometry_(GRADT1,GRADT2,GRADT3,GRADT4) = 22, 25, 490, 500
 #
 # ----- Definition of gradient taper geometry ----- #
 # Vertical taper
@@ -72,7 +72,7 @@ exponent_of_depth_scaling_for_preconditioning_(EXP_TAPER_GRAD_HOR) = 0.0
 apply_cylindrical_taper_(yes=1)_(SWS_TAPER_GRAD_SOURCES) = 0
 apply_cylindrical_taper_per_shot_(yes=1)_(SWS_TAPER_CIRCULAR_PER_SHOT) = 0
 (1=error_function,2=log_function)_(SRTSHAPE) = 1
-radius_in_m_(SRTRADIUS) = 5.0
+radius_in_m_(SRTRADIUS) = 80.0
 # --> minimum for SRTRADIUS is 5x5 gridpoints
 filtsize_in_gridpoints_(FILTSIZE) = 1
 read_taper_from_file_(yes=1)_(SWS_TAPER_FILE) = 0

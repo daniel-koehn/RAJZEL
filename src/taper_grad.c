@@ -121,8 +121,10 @@ void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int
         taperlength2=GRADT4-GRADT3;
         ifw = GRADT2-GRADT1+1;
 
-        printf("%d \t %d \t %d \t %d \n",GRADT1, GRADT2, GRADT3, GRADT4);
-        printf("%d \t %d \t %d \n",taperlength, taperlength2,ifw);
+        if(MYID==0){
+           printf("%d \t %d \t %d \t %d \n",GRADT1, GRADT2, GRADT3, GRADT4);
+           printf("%d \t %d \t %d \n",taperlength, taperlength2,ifw);
+        }
 
         if (MYID==0)
         {

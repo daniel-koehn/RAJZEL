@@ -55,6 +55,8 @@ void eikonal(float ** S, float ** TT, float * Tmod, float ** srcpos, int ishot, 
 
 void eikonal_adj(float ** TT, float * Tres, float ** lam, int ** recpos, int ntr, int ishot);
 
+void exchange_grad_MPI(float ** grad);
+
 void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float *Tres, float ** srcpos, int nshots, int ** recpos, int ntr, char *fileinp1);
 
 void forward(float ** S, float ** TT, float * Tmod,  float ** srcpos, int nshots, int ** recpos, int ntr);
@@ -73,7 +75,7 @@ void init_grad(float ** A);
 
 void init_MPIshot(int nshots);
 
-void init_travel_adj(float **lam, int ** recpos, int ntr, float * Tres);
+void init_travel_adj(float **lam, int ** recpos, int ntr, float * Tres, float **TT);
 
 void LBFGS(float ** Hgrad, float ** grad, float ** gradm, int iter, float * y_LBFGS, float * s_LBFGS, float * rho_LBFGS, float * alpha_LBFGS, 
 float **Vp, float * q_LBFGS, float * r_LBFGS, float * beta_LBFGS, int LBFGS_pointer, int NLBFGS, int NLBFGS_vec);
@@ -130,6 +132,8 @@ float ** srcpos, int ntr, int ** recpos, int itest, int *step1, int *step3, int 
 int nshot2, int nsrc, float * epst1, float * L2t);
 
 void store_mat(float ** A, float ** B, int n, int m);
+
+void sum_grad_MPI(float ** grad);
 
 void sweep(float ** S, float ** TT, int nxsrc, int nysrc, int nx1, int nx2, int ndx, int ny1, int ny2, int ndy);
 

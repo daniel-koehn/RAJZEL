@@ -28,7 +28,9 @@ float **Vp, float * q_LBFGS, float * r_LBFGS, float * beta_LBFGS, int LBFGS_poin
 	
         itershift = 1;
 
-/* calculate H^-1 * gradm, using the L-BFGS method, if iter > 1 */
+if(MYID==0){ /* Apply l-BFGS only on MPI process 0 */
+
+/* calculate H^-1 * gradm, using the L-BFGS method, if iter > 1          */
 /* --------------------------------------------------------------------- */
 
 if(iter>1){
@@ -70,8 +72,9 @@ if(iter>1){
      sum_nom = dotp(y_LBFGS,s_LBFGS,h1,h2,0);
      sum_denom = dotp(y_LBFGS,y_LBFGS,h1,h2,0);
      gamma_LBFGS = sum_nom/sum_denom;
-     
-     /*printf("gamma_LBFGS = %e \n",gamma_LBFGS);*/
+
+     printf("MYID = %d \n",MYID);     
+     printf("gamma_LBFGS = %e \n",gamma_LBFGS);
          
      /* update variable rho for all LBFGS-iterations and all parameter classes*/
      for(k=1;k<=NLBFGS;k++){
@@ -88,7 +91,8 @@ if(iter>1){
 	} 
 	  
 	if(MYID==0){                                                
-	printf("rho_LBFGS = %e of k = %d \n",rho_LBFGS[k],k);}
+	   printf("rho_LBFGS = %e of k = %d \n",rho_LBFGS[k],k);
+        }
 	                                                       
      }
      
@@ -156,16 +160,6 @@ h=1;
         }
      }
 
-
-     /* Denormalize Gradients */
-     /*for (i=1;i<=NX;i=i+IDX){
-        for (j=1;j<=NY;j=j+IDY){
-            
-           Hgrad[j][i] = Hgrad[j][i] * C_vp;
-
-        }
-     }*/
-
 }
 
 if(iter==1){
@@ -218,5 +212,13 @@ if(iter==1){
         }
         
 	fclose(FP3);	
+
+
+} /* end MYID==0*/
+
+/* distribute gradient to all MPI processes */
+MPI_Barrier(MPI_COMM_WORLD);
+exchange_grad_MPI(Hgrad);
+
 	
 }

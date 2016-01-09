@@ -12,7 +12,7 @@ void gauss_filt(float ** waveconv)
 
 /* global variables */
 extern float DH;
-extern int FREE_SURF, NX, NY;
+extern int FREE_SURF, NX, NY, MYID;
 extern char JACOBIAN[STRING_SIZE];
 extern int FILT_SIZE_GRAD, FILT_SIZE_GRAD1;
 
@@ -48,8 +48,10 @@ hfsy = abs(FILT_SIZE_GRAD1)/2;
 sigmay = hfsy/6.0;
 sy = 2.0 * sigmay *sigmay;
 
-printf("\n hfsx: %d \n",hfsx);
-printf("\n hfsy: %d \n",hfsy);
+if(MYID==0){
+   printf("\n hfsx: %d \n",hfsx);
+   printf("\n hfsy: %d \n",hfsy);
+}
 
 model_tmp = matrix(-hfsy+1,NY+hfsy,-hfsx+1,NX+hfsx);
 kernel=matrix(1,abs(FILT_SIZE_GRAD1),1,abs(FILT_SIZE_GRAD));
