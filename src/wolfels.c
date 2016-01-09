@@ -16,7 +16,7 @@ float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** T
         extern float EPS_SCALE, C1, C2, SCALEFAC;
 
         /* declaration of local variables */
-        float normg, c1, c2, mu, nu, ft, ** Snp1;
+        float normg, mu, nu, ft, ** Snp1;
         float ** gt, ** Vpnp1, g0s0, gts0, maxgrad, maxvp;     
 	int lsiter, done;
 

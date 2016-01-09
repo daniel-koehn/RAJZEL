@@ -103,6 +103,9 @@ float norm_matrix(float **A, int NX, int NY);
 
 void note(FILE *fp);
 
+float parabolicls(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr, 
+                  int iter, float alpha, float L2);
+
 void PCG(float ** Hgrad, float ** grad, int iter);
 
 void precond(float ** grad, int nsrc, float ** srcpos, int ** recpos, int ntr, int iter);
@@ -126,10 +129,6 @@ void smooth_model(float ** pinp1, float ** unp1, float ** rho, int iter);
 float **sources(int *nsrc);
 
 void solvelin(float  **AA, float *bb, float *x, int e, int method);
-
-float step_length_est(float ** waveconv, float ** Vp, float **S, int iter, int partest, 
-float ** srcpos, int ntr, int ** recpos, int itest, int *step1, int *step3, int nfstart, int nshot1, 
-int nshot2, int nsrc, float * epst1, float * L2t);
 
 void store_mat(float ** A, float ** B, int n, int m);
 

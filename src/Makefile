@@ -5,7 +5,7 @@
 
 # source code for model generation
 
-MODEL = 1D_start_marm.c
+MODEL = 1D_start_overthrust.c
 MODEL_GRID_SEARCH = 1D_start_gridsearch.c
 EXEC= ../bin
 
@@ -81,7 +81,6 @@ RAJZEL= \
         eikonal.c \
         eikonal_adj.c \
         exchange_grad_MPI.c \
-	step_length_est.c \
 	median.c \
         fatt.c \
         forward.c \
@@ -105,6 +104,7 @@ RAJZEL= \
 	norm.c \
         norm1.c \
         norm_matrix.c \
+        parabolicls.c \
 	PCG.c \
         precond.c \
 	readdsk.c \

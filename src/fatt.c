@@ -10,7 +10,7 @@
 void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float *Tres, float ** srcpos, int nshots, int ** recpos, int ntr, char *fileinp1){
 
 	/* declaration of global variables */
-        extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX;
+        extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH;
         extern char MISFIT_LOG_FILE[STRING_SIZE];
         extern float PRO;
     
@@ -162,9 +162,15 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 			   check_descent(Hgrad,grad,NLBFGS_vec,y_LBFGS,s_LBFGS,iter);
 
 			   /* Estimate optimum step length ... */
+			   MPI_Barrier(MPI_COMM_WORLD);
 			   /* ... by line search which satisfies the Wolfe conditions */
-                           MPI_Barrier(MPI_COMM_WORLD);
-			   eps_scale=wolfels(Hgrad,grad,Vp,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter,eps_scale,L2);
+                           if(LINESEARCH==1){
+			   eps_scale=wolfels(Hgrad,grad,Vp,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter,eps_scale,L2);}
+			   
+			   /* ... by inexact parabolic line search */
+                           if(LINESEARCH==2){
+			   eps_scale=parabolicls(Hgrad,grad,Vp,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter,eps_scale,L2);}
+			   
 
 			   if(MYID==0){
 			      fprintf(FPL2,"%e \t %e \t %d \n",eps_scale,L2t[1],nstage);
