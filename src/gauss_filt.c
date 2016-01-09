@@ -41,11 +41,11 @@ if (!(FILT_SIZE_GRAD1 % 2)) {
 
 
 hfsx = abs(FILT_SIZE_GRAD)/2;
-sigmax = hfsx/6.0;
+sigmax = hfsx/2;
 sx = 2.0 * sigmax *sigmax;
 
 hfsy = abs(FILT_SIZE_GRAD1)/2;
-sigmay = hfsy/6.0;
+sigmay = hfsy/2;
 sy = 2.0 * sigmay *sigmay;
 
 if(MYID==0){
