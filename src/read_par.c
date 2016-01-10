@@ -44,7 +44,7 @@ extern float FC_START, FC_END, FC_INCR, TTNORM, EPS_ADJ;
 
 extern int LNORM;
 
-extern int STEPMAX;
+extern int LINESEARCH,STEPMAX;
 extern float EPS_SCALE, SCALEFAC, C1, C2;
 
 extern float PRO;
@@ -227,37 +227,40 @@ int  c=0, lineno=0, l;
 	 case 51 :         
             fscanf(fp_in,"%s =%i",s,&FILT_SIZE);                         
             break;
-	 case 52 :
-	   fscanf(fp_in,"%s =%f",s,&EPS_SCALE);                         
+         case 52 :    
+            fscanf(fp_in,"%s =%i",s,&LINESEARCH);
             break;
 	 case 53 :
+	   fscanf(fp_in,"%s =%f",s,&EPS_SCALE);                         
+            break;
+	 case 54 :
 	    fscanf(fp_in,"%s =%f, %f",s,&C1,&C2);
 	    break; 
-	 case 54 :
+	 case 55 :
 	   fscanf(fp_in,"%s =%i",s,&STEPMAX);                         
             break;
-	 case 55 :
+	 case 56 :
 	   fscanf(fp_in,"%s =%f",s,&SCALEFAC);                         
             break;
-	 case 56 :
+	 case 57 :
 	   fscanf(fp_in,"%s =%s",s,&MISFIT_LOG_FILE);                         
             break; 
-	 case 57 :
+	 case 58 :
 	   fscanf(fp_in,"%s =%i",s,&MIN_ITER);                         
             break; 
-	 case 58 :
+	 case 59 :
 	   fscanf(fp_in,"%s =%i",s,&GRAD_FILTER);                         
             break; 
-	 case 59 :
+	 case 60 :
 	   fscanf(fp_in,"%s =%i",s,&FILT_SIZE_GRAD);                         
             break;
-	 case 60 :
+	 case 61 :
 	    fscanf(fp_in,"%s =%f, %f, %f",s,&VP0_1,&VP0_2,&DVP0);
 	    break;
-         case 61 :
+         case 62 :
 	    fscanf(fp_in,"%s =%f, %f, %f",s,&GRAD0_1,&GRAD0_2,&DGRAD0);
 	    break;
-	 case 62 :
+	 case 63 :
 	    fscanf(fp_in,"%s =%s",s,GRIDSEARCH_FILE);
 	    break; 
 	 default:

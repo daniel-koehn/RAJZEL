@@ -5,7 +5,7 @@
 
 # source code for model generation
 
-MODEL = 1D_start_overthrust.c
+MODEL = 1D_start_marm.c
 MODEL_GRID_SEARCH = 1D_start_gridsearch.c
 EXEC= ../bin
 

@@ -59,7 +59,7 @@ float FC_START, FC_END, FC_INCR;
 
 int LNORM;
 
-int STEPMAX;
+int LINESEARCH, STEPMAX;
 float EPS_SCALE, SCALEFAC, C1, C2;
 
 float PRO;

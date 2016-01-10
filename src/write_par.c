@@ -37,7 +37,7 @@ void write_par(FILE *fp){
 	extern int nfstart_jac, nf_jac;
 	extern float VPUPPERLIM, VPLOWERLIM;
 	
-	extern int STEPMAX;
+	extern int LINESEARCH, STEPMAX;
 	extern float EPS_SCALE, SCALEFAC, TTNORM, EPS_ADJ;
 
 	extern int NORMALIZE, NLBFGS, N_STREAMER;
@@ -224,6 +224,8 @@ void write_par(FILE *fp){
 	
 		fprintf(fp,"\n\n");
 		fprintf(fp," --------------- Step length estimation -------------------\n");
+                if(LINESEARCH==1){fprintf(fp," LINESEARCH = %d: Wolfe condition line search\n",LINESEARCH);}
+                if(LINESEARCH==2){fprintf(fp," LINESEARCH = %d: parabolic line search\n",LINESEARCH);}
 		fprintf(fp," EPS_SCALE = %f\n",EPS_SCALE);
 		fprintf(fp," Wolfe condition parameters C1 = %f, C2 = %f\n",C1, C2);
 		fprintf(fp," STEPMAX = %d\n",STEPMAX);
