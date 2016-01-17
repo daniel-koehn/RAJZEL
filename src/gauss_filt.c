@@ -22,6 +22,8 @@ int i1, j1, filtsize, hfsx, hfsy;
 float **model_tmp, **kernel, grad, normgauss, smooth_meter;
 float conv;
 float r, sigmax, sigmay, sx, sy, sum=0.0;
+
+/* cp_grad_frame(waveconv); */
 	
 if (FILT_SIZE_GRAD==0)	return;
 if (!(FILT_SIZE_GRAD % 2)) {

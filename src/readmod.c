@@ -44,7 +44,6 @@ void readmod(float **  Vp){
 	/* each PE writes his model to disk */
 	sprintf(filename,"%s.rajzel.vp",MFILE);
 	writemod(filename,Vp,3);
-	MPI_Barrier(MPI_COMM_WORLD);
 
 }
 

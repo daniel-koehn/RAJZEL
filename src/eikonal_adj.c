@@ -7,7 +7,7 @@
 
 #include "fd.h"
 
-void eikonal_adj(float ** TT, float * Tres, float ** lam, int ** recpos, int ntr, int ishot){
+void eikonal_adj(float ** TT, float * Tres, float ** lam, int ** recpos, int ntr, int ishot, int **recflag){
 
 	/* declaration of global variables */
         extern float DH, TIME, TTNORM;
@@ -40,10 +40,10 @@ void eikonal_adj(float ** TT, float * Tres, float ** lam, int ** recpos, int ntr
                 store_mat(lam,lamold,NX,NY);
 
                 /* sweep with order according to Taillandier (2009) */
-                sweep_adj(lam,TT,Tres,recpos,ntr,2,NX-1,1,2,NY-1,1);
-                sweep_adj(lam,TT,Tres,recpos,ntr,2,NX-1,1,NY-1,2,-1);
-                sweep_adj(lam,TT,Tres,recpos,ntr,NX-1,2,-1,2,NY-1,1);
-                sweep_adj(lam,TT,Tres,recpos,ntr,NX-1,2,-1,NY-1,2,-1);
+                sweep_adj(lam,TT,Tres,recpos,ntr,2,NX-1,1,2,NY-1,1,recflag);
+                sweep_adj(lam,TT,Tres,recpos,ntr,2,NX-1,1,NY-1,2,-1,recflag);
+                sweep_adj(lam,TT,Tres,recpos,ntr,NX-1,2,-1,2,NY-1,1,recflag);
+                sweep_adj(lam,TT,Tres,recpos,ntr,NX-1,2,-1,NY-1,2,-1,recflag);
 
 		/* calculate l1 norm of lam - lamold */
 		lnorm1 = norm1(lam,lamold);

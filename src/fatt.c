@@ -135,8 +135,8 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 			    }
 			  }
 
-			/* First-Arrival Traveltime Tomography (FATT) */
-			/* ------------------------------------------ */
+			   /* First-Arrival Traveltime Tomography (FATT) */
+			   /* ------------------------------------------ */
 
 			   /* calculate Vp gradient and objective function */
 			   L2 = grad_obj(grad,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter);
@@ -157,6 +157,13 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
                               MPI_Barrier(MPI_COMM_WORLD);
 			      LBFGS(Hgrad,grad,gradm,iter,y_LBFGS,s_LBFGS,rho_LBFGS,alpha_LBFGS,Vp,q_LBFGS,r_LBFGS,beta_LBFGS,LBFGS_pointer,NLBFGS,NLBFGS_vec);
 			   }
+
+                           /* ... Descent method */
+                           if(GRAD_METHOD==3){
+                              MPI_Barrier(MPI_COMM_WORLD);
+                              descent(grad,Hgrad);
+                           }
+
 
 			   /* check if search direction is a descent direction, otherwise reset l-BFGS history */
 			   check_descent(Hgrad,grad,NLBFGS_vec,y_LBFGS,s_LBFGS,iter);
@@ -180,7 +187,6 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 			   L2_hist[iter]=L2t[1];
 
 			   /* calculate optimal change in the material parameters */
-			   /*eps_true=calc_mat_change(waveconv,Vp,Vpnp1,iter,eps_scale,0,nfstart);*/
                            MPI_Barrier(MPI_COMM_WORLD);
 			   calc_mat_change_wolfe(Hgrad,Vp,Vpnp1,eps_scale,0);
 			   calc_S(Vp,S);

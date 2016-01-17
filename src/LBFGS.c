@@ -174,6 +174,8 @@ if(iter==1){
 
 }
 
+/* printf("Hgrad[NY][NX] = %e \t grad[NY][NX] = %e \n",Hgrad[NY][NX],grad[NY][NX]); */
+
 /* save old models Vp */
 /* ------------------ */
 

@@ -10,7 +10,7 @@
 void precond(float ** grad, int nsrc, float ** srcpos, int ** recpos, int ntr, int iter){
 
         /* global variables */
-	extern int SPATFILTER, GRAD_FILTER;
+	extern int SPATFILTER, GRAD_FILTER, NX, NY;
 	extern int SWS_TAPER_GRAD_VERT, SWS_TAPER_GRAD_HOR, SWS_TAPER_GRAD_SOURCES, SWS_TAPER_FILE;
 	
         /* local variables */
@@ -18,7 +18,7 @@ void precond(float ** grad, int nsrc, float ** srcpos, int ** recpos, int ntr, i
 		
 	/* Preconditioning of the gradient */
 	/* ------------------------------- */
-
+       
 	/* apply wavenumber damping */
 	if(SPATFILTER==1){
 	  wavenumber(grad);

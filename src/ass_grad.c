@@ -17,13 +17,15 @@ void ass_grad(float ** grad, float ** grad_shot, float ** S, float ** lam, float
 	int i, j;
 	
 	/* assemble gradient from one shots */
-	for (i=1;i<=NX;i++){
-	    for (j=1;j<=NY;j++){
+	for (i=2;i<=NX-1;i++){
+	    for (j=2;j<=NY-1;j++){
 
-               grad_shot[j][i] = lam[j][i]*S[j][i];
+               grad_shot[j][i] = lam[j][i]*pow(S[j][i],1.0);
 		    
 	    }
 	}
+	
+	cp_grad_frame(grad_shot);
 	
 	/* apply taper at source positions */
 	if(SWS_TAPER_CIRCULAR_PER_SHOT==1){

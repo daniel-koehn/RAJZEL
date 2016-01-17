@@ -11,8 +11,7 @@ void  wavenumber(float ** grad){
 
 	/* declaration of extern variables */
         extern int NX, NY, NXG, NYG, IDX, IDY;
-	extern int NPROCX, NPROCY, MYID, POS[3];
-	extern int SPAT_FILT_SIZE;
+	extern int NPROCX, NPROCY, MYID;
 	extern float WD_DAMP;
 	extern char JACOBIAN[STRING_SIZE];
 	
@@ -24,26 +23,10 @@ void  wavenumber(float ** grad){
         float ** gradtmp1;
         
 	char jac[STRING_SIZE];
-	FILE *fp_grad, *FP3;
 	                    
 	/* size of the zeropadding layer */
-        zeropad=SPAT_FILT_SIZE;
-	                    
-	/* temporarily save gradient for wavenumber filtering */
-        sprintf(jac,"%s_wavenumber.old",JACOBIAN);
-        FP3=fopen(jac,"wb");
-                        
-        for (i=1;i<=NX;i=i+IDX){
-            for (j=1;j<=NY;j=j+IDY){
-                fwrite(&grad[j][i],sizeof(float),1,FP3);
-            }                       
-        }                           
+        zeropad=0;               
                                     
-        fclose(FP3);                
-                                    
-
-if(MYID==0){    /* read the global model on node 0 and apply wavenumber damping */
-
         /*npadx = (int)(pow(2.0, ceil(log((double)(NXG))/log(2.0))+2.0) );
         npady = (int)(pow(2.0, ceil(log((double)(NYG))/log(2.0))+2.0) );*/
         
@@ -53,7 +36,7 @@ if(MYID==0){    /* read the global model on node 0 and apply wavenumber damping 
         /* define temporary gradient matrix */
         gradtmp1 = matrix(1,npady,1,npadx);
         
-        printf("npadx = %d \t npady = %d \n",npadx,npady);
+        /* printf("npadx = %d \t npady = %d \n",npadx,npady); */
         
 	fftw_complex    *data, *fft_result, *ifft_result;
 	fftw_plan       plan_forward, plan_backward;
@@ -66,19 +49,16 @@ if(MYID==0){    /* read the global model on node 0 and apply wavenumber damping 
         /*damp=5e-5;
         damp=6e-5;*/
 
-	printf("\n Spatial filter is applied to gradient (written by PE %d)\n",MYID); 
-	
-	fp_grad=fopen(jac,"rb");
-	
-	if (fp_grad==NULL) err(" Could not open gradient file ! ");
-	
-	/* load merged gradient */
+        if(MYID==0){
+	   printf("\n Spatial filter is applied to gradient (written by PE %d)\n",MYID); 
+        }	
+
+	/* define real and imaginary part of the gradient */
 	for (i=1;i<=npadx;i++){
 	   for (j=1;j<=npady;j++){
 	        
 	        if((i>=1+zeropad)&&(i<=NXG+zeropad)&&(j>=1+zeropad)&&(j<=NYG+zeropad)){
-	            fread(&gradtmp, sizeof(float), 1, fp_grad);
-	            gradtmp1[j][i] = gradtmp;
+	            gradtmp1[j][i] = grad[j][i];
 		}
 		else{
 		    gradtmp1[j][i]=0.0;
@@ -87,11 +67,9 @@ if(MYID==0){    /* read the global model on node 0 and apply wavenumber damping 
             }
 	}
 	
-	fclose(fp_grad);
-	
 	/* Fill padding layer with non-zeros */
 	/* top and bottom padding */
-        for (i=1;i<=npadx;i++){
+        /*for (i=1;i<=npadx;i++){
             for (j=1;j<=npady;j++){
             
                 if((i>=1+zeropad)&&(i<=NXG+zeropad)&&(j<(1+zeropad))){
@@ -103,10 +81,10 @@ if(MYID==0){    /* read the global model on node 0 and apply wavenumber damping 
                 }
             
             }
-        }
+        }*/
         
         /* left and right padding */
-        for (j=1;j<=npady;j++){
+        /*for (j=1;j<=npady;j++){
             for (i=1;i<=npadx;i++){
                                         
                 if(i<(1+zeropad)){
@@ -118,7 +96,7 @@ if(MYID==0){    /* read the global model on node 0 and apply wavenumber damping 
                 }
                                                                                                                                                                          
             }
-        }
+        }*/
                                                                                                                                                                                              
 	
         /* FFT of the  gradient */
@@ -145,22 +123,22 @@ if(MYID==0){    /* read the global model on node 0 and apply wavenumber damping 
         for (i=1;i<=npadx;i++){
             for (j=1;j<=npady;j++){ 
                 
-                if((i<=npadx/2+1)&&(j<=npady/2+1)){
+                if((i<=npadx/2)&&(j<=npady/2)){
                   fft_result[h][0] *=exp(-WD_DAMP*((i-1)*(i-1)+(j-1)*(j-1)));
                   fft_result[h][1] *=exp(-WD_DAMP*((i-1)*(i-1)+(j-1)*(j-1)));
                 }
                 
-                if((i>npadx/2+1)&&(j<=npady/2+1)){ 
+                if((i>npadx/2)&&(j<=npady/2)){ 
                   fft_result[h][0] *=exp(-WD_DAMP*((i-npadx)*(i-npadx)+(j-1)*(j-1)));
                   fft_result[h][1] *=exp(-WD_DAMP*((i-npadx)*(i-npadx)+(j-1)*(j-1)));
                 }
                 
-                if((i<=npadx/2+1)&&(j>npady/2+1)&&(j<=npady)){
+                if((i<=npadx/2)&&(j>npady/2)&&(j<=npady)){
                   fft_result[h][0] *=exp(-WD_DAMP*((i-1)*(i-1)+(j-npady)*(j-npady)));          
                   fft_result[h][1] *=exp(-WD_DAMP*((i-1)*(i-1)+(j-npady)*(j-npady))); 
                 }
                 
-                if((i>npadx/2+1)&&(j>npady/2+1)&&(j<=npady)){
+                if((i>npadx/2)&&(j>npady/2)&&(j<=npady)){
                   fft_result[h][0] *=exp(-WD_DAMP*((i-npadx)*(i-npadx)+(j-npady)*(j-npady)));                            
                   fft_result[h][1] *=exp(-WD_DAMP*((i-npadx)*(i-npadx)+(j-npady)*(j-npady)));                  
                 }
@@ -172,21 +150,18 @@ if(MYID==0){    /* read the global model on node 0 and apply wavenumber damping 
 	/* apply 2D-ifft */
 	fftw_execute( plan_backward );
 
-	/* write damped gradient to temporary file */
-	sprintf(jac,"%s_wavenumber.old",JACOBIAN);
-	FP3=fopen(jac,"wb");
+	/* output of ifft */
 	h=0;
 	for (i=1;i<=npadx;i++){
 		for (j=1;j<=npady;j++){
 			 
 			 if((i>=1+zeropad)&&(i<=NXG+zeropad)&&(j>=1+zeropad)&&(j<=NYG+zeropad)){
-			 gradtmp = ifft_result[h][0];
-			 fwrite(&gradtmp,sizeof(float),1,FP3);}
+			    grad[j][i] = ifft_result[h][0];
+			 }
 			 
 			 h++;
 		}
 	}
-	fclose(FP3);
 	        
 	/* free memory */
 	fftw_free( data );
@@ -197,33 +172,6 @@ if(MYID==0){    /* read the global model on node 0 and apply wavenumber damping 
         fftw_destroy_plan( plan_backward );
 
         free_matrix(gradtmp1,1,npady,1,npadx);
-        
-} /* end of if MYID==0*/
-
-	 MPI_Barrier(MPI_COMM_WORLD);
-
-         sprintf(jac,"%s_wavenumber.old",JACOBIAN);
-	 FP3=fopen(jac,"rb");
-
-	 /* distribute spatial filtered gradient on computational nodes */
-	 for (i=1;i<=NXG;i++){
-	    for (j=1;j<=NYG;j++){
-			
-			fread(&gradtmp, sizeof(float),1,FP3);
-
-			if ((POS[1]==((i-1)/NX)) && 
-		   	 (POS[2]==((j-1)/NY))){
-				ii=i-POS[1]*NX;
-				jj=j-POS[2]*NY;
-
-				grad[jj][ii]=gradtmp;
-
-			}
-			
-		}
-	}
-
-        fclose(FP3);
                                 
 
 }

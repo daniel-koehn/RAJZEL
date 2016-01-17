@@ -5,7 +5,7 @@
 
 # source code for model generation
 
-MODEL = 1D_start_marm.c
+MODEL = 1D_start_BP2004.c
 MODEL_GRID_SEARCH = 1D_start_gridsearch.c
 EXEC= ../bin
 
@@ -75,6 +75,7 @@ RAJZEL= \
 	calc_opt_step_test.c \
         calc_S.c \
         check_descent.c \
+        cp_grad_frame.c \
         descent.c \
 	dotp.c \
         dotp_matrix.c \
@@ -91,6 +92,7 @@ RAJZEL= \
         info_mem.c \
         init_grad.c \
         init_MPIshot.c \
+        init_recflag.c \
         init_travel_adj.c \
         LBFGS.c \
 	smooth2.c \

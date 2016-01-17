@@ -7,7 +7,7 @@
 
 #include "fd.h"
 
-void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, int nx1, int nx2, int ndx, int ny1, int ny2, int ndy){
+void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, int nx1, int nx2, int ndx, int ny1, int ny2, int ndy, int **recflag){
 
 	extern int NX, NY;
 	extern float DH, EPS_ADJ;
@@ -27,12 +27,14 @@ void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, 
                 k = ny1;
 		for (j=2;j<=NY-1;j++){
 
+                     if(recflag[k][h]==0){
+
                         /* assemble equation (3.6) in Leung & Qian (2006) */
-                        ap = (TT[k][h+1]-TT[k][h])/DH;
-                        am = (TT[k][h]-TT[k][h-1])/DH;
+                        ap = -(TT[k][h+1]-TT[k][h])/DH;
+                        am = -(TT[k][h]-TT[k][h-1])/DH;
                         
-			bp = (TT[k+1][h]-TT[k][h])/DH;
-                        bm = (TT[k][h]-TT[k-1][h])/DH;
+			bp = -(TT[k+1][h]-TT[k][h])/DH;
+                        bm = -(TT[k][h]-TT[k-1][h])/DH;
 
 			app = (ap + fabs(ap))/2.0;
 			apm = (ap - fabs(ap))/2.0;
@@ -48,26 +50,27 @@ void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, 
 
                         
                         /* Leung & Qian (2006) */
-                        /* lhs = (app-amm)/DH + (bpp-bmm)/DH;
-                        rhs = (amp*lam[k][h-1]-apm*lam[k][h+1])/DH + (bmp*lam[k-1][h]-bpm*lam[k+1][h])/DH;*/
+                        lhs = (app-amm)/DH + (bpp-bmm)/DH;
+                        rhs = (amp*lam[k][h-1]-apm*lam[k][h+1])/DH + (bmp*lam[k-1][h]-bpm*lam[k+1][h])/DH;
                         
                         /* Taillandier et al. (2009) */
-                        lhs = (apm-amp)/DH + (bpm-bmp)/DH;
-                        rhs = (amm*lam[k][h-1]-app*lam[k][h+1])/DH + (bmm*lam[k-1][h]-bpp*lam[k+1][h])/DH;
+                        /* lhs = (apm-amp)/DH + (bpm-bmp)/DH;
+                        rhs = (amm*lam[k][h-1]-app*lam[k][h+1])/DH + (bmm*lam[k-1][h]-bpp*lam[k+1][h])/DH; */
 
                         lamt = rhs/(lhs+EPS_ADJ);
                        
 
                         /* add data residuals at receiver positions */
-                        for (l=1;l<=ntr;l++){
+                        /*for (l=1;l<=ntr;l++){
                            
                            if((h==recpos[1][l])&&(k==recpos[2][l])){
 			      lamt = Tres[l];
                            }
 
-                        }
+                        }*/
 
                         lam[k][h] = fminf(lam[k][h],lamt);
+                     }
 
 		        k += ndy;
 		}

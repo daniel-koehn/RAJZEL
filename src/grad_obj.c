@@ -13,9 +13,11 @@ float grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmo
         extern int SEISMO, NX, NY, NSHOT1, NSHOT2;
     
         /* declaration of local variables */
-        int ishot; 
+        int ishot, ** recflag; 
         float L2sum, L2, ** grad_shot;
+	
         grad_shot =  matrix(1,NY,1,NX);
+        recflag =  imatrix(1,NY,1,NX);
 
         /* suppress modelled FA traveltime output during FATT */
         SEISMO = 0;
@@ -23,6 +25,9 @@ float grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmo
 	/* set gradient matrix to zero before next iteration*/
 	init_grad(grad);
         L2 = 0.0;
+	
+	/* define receiver flag field */
+        init_recflag(recflag,recpos,ntr);
 
 	for (ishot=NSHOT1;ishot<NSHOT2;ishot++){
 
@@ -35,10 +40,10 @@ float grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmo
              /* calculate traveltime residuals at receiver positions */
  	     L2+=calc_FA_res(Tmod,Tobs,Tres,ntr,ishot);
 
-	     /*write_picks(Tres,ntr,ishot);*/
+	     /* write_picks(Tres,ntr,ishot); */
                 
              /* calculate adjoint Eikonal wavefield */
-             eikonal_adj(TT,Tres,lam,recpos,ntr,ishot); 
+             eikonal_adj(TT,Tres,lam,recpos,ntr,ishot,recflag); 
 
              /* assemble gradient for each shot */
 	     ass_grad(grad,grad_shot,S,lam,srcpos,nshots,recpos,ntr,ishot);
@@ -61,11 +66,14 @@ float grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmo
 	/* sum gradients over all MPI processes */
 	sum_grad_MPI(grad);
 
+        cp_grad_frame(grad);
+
         /* gradient preconditioning */
         precond(grad,nshots,srcpos,recpos,ntr,iter);
 
         /* deallocate memory */
         free_matrix(grad_shot,1,NY,1,NX);
+	free_imatrix(recflag,1,NY,1,NX);
 
 return L2;
                 	    

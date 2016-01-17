@@ -15,7 +15,9 @@ float calc_FA_res(float * Tmod, float * Tobs, float * Tres, int ntr, int ishot){
 	/* local variables */
 	int i;
         char pickfile_char[STRING_SIZE];
-        float l2, tmp;
+        float l2, tmp, minres;
+
+        minres = 1e-6;
 
         FILE *fp;
 
@@ -33,6 +35,8 @@ float calc_FA_res(float * Tmod, float * Tobs, float * Tres, int ntr, int ishot){
 
             /* calculate traveltime residuals */
 	    Tres[i] = Tobs[i] - Tmod[i];
+
+            if(fabs(Tres[i])<=minres){Tres[i] = 0.0;}
 
             /* calculate objective function */
             l2 += Tres[i] * Tres[i]; 

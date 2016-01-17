@@ -45,6 +45,8 @@ void calc_S(float **  Vp, float **  S);
 
 void check_descent(float ** waveconv, float ** gradp, int NLBFGS_vec, float * y_LBFGS, float * s_LBFGS, int iter);
 
+void cp_grad_frame(float ** A);
+
 void descent(float ** grad, float ** gradm);
 
 float dotp(float * vec1, float *vec2, int n1, int n2, int sw);
@@ -53,7 +55,7 @@ float dotp_matrix(float ** A, float ** B, int NX, int NY);
 
 void eikonal(float ** S, float ** TT, float * Tmod, float ** srcpos, int ishot, int nshots, int **recpos, int ntr);
 
-void eikonal_adj(float ** TT, float * Tres, float ** lam, int ** recpos, int ntr, int ishot);
+void eikonal_adj(float ** TT, float * Tres, float ** lam, int ** recpos, int ntr, int ishot, int **recflag);
 
 void exchange_grad_MPI(float ** grad);
 
@@ -74,6 +76,8 @@ void info(FILE *fp);
 void init_grad(float ** A);
 
 void init_MPIshot(int nshots);
+
+void init_recflag(int **recflag, int ** recpos, int ntr);
 
 void init_travel_adj(float **lam, int ** recpos, int ntr, float * Tres, float **TT);
 
@@ -136,7 +140,7 @@ void sum_grad_MPI(float ** grad);
 
 void sweep(float ** S, float ** TT, int nxsrc, int nysrc, int nx1, int nx2, int ndx, int ny1, int ny2, int ndy);
 
-void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, int nx1, int nx2, int ndx, int ny1, int ny2, int ndy);
+void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, int nx1, int nx2, int ndx, int ny1, int ny2, int ndy, int **recflag);
 
 void taper_grad(float ** waveconv, float **srcpos, int nshots, int **recpos, int ntr, int sws);
 
