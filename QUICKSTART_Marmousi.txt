@@ -31,6 +31,7 @@ cp DENISE-Benchmark/Marmousi-II/start/marmousi_II_marine.* RAJZEL/par/start/
 5. In RAJZEL/par/RAJZEL_marm_OBC.inp check if the following parameters are set correctly  for a forward modelling run
 
 forward_modelling_(yes=0)_FATT_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 0
+READMOD = 1 
 MFILE = start/marmousi_II_marine
 
 6. Generate synthetic Marmousi-II data for an OBC acquisition geometry by running RAJZEL on e.g. 8 cores of 
