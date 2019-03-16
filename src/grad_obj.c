@@ -7,14 +7,15 @@
 
 #include "fd.h"
 
-float grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr, int iter){
+double grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr, int iter){
 
 	/* declaration of global variables */
         extern int SEISMO, NX, NY, NSHOT1, NSHOT2;
     
         /* declaration of local variables */
         int ishot, ** recflag; 
-        float L2sum, L2, ** grad_shot;
+        float ** grad_shot;
+	double L2sum, L2; 
 	
         grad_shot =  matrix(1,NY,1,NX);
         recflag =  imatrix(1,NY,1,NX);
@@ -56,7 +57,7 @@ float grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmo
         /* assemble objective function from all MPI processes */
 	L2sum = 0.0;
         MPI_Barrier(MPI_COMM_WORLD);
-	MPI_Allreduce(&L2,&L2sum,1,MPI_FLOAT,MPI_SUM,MPI_COMM_WORLD);
+	MPI_Allreduce(&L2,&L2sum,1,MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
         L2 = 0.5 * L2sum;	
 
 	/*if(MYID==0){

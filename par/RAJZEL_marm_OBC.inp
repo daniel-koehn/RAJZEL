@@ -5,7 +5,7 @@
 # description/name of model: Marmousi-II
 #
 #-------------------- RAJZEL modus ------------------------------------- 
-forward_modelling_(yes=0)_FATT_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 1
+forward_modelling_(yes=0)_FATT_(yes=1)_GRID_SEARCH_(yes=2)_(INVMAT) = 0
 #
 #-------------------- 2-D Grid -----------------------------------------
 number_of_gridpoints_in_x-direction_(NX) = 500
@@ -20,7 +20,7 @@ time_of_wave_propagation_(in_sec)_(TIME) = 6.0
 SOURCE_FILE = ./source/source_OBC_VSP.dat 
 #
 #--------------------- Model -------------------------------------------
-read_model_parameters_from_MFILE(yes=1)(READMOD) = 0
+read_model_parameters_from_MFILE(yes=1)(READMOD) = 1
 MFILE = start/marmousi_II_marine
 #
 #----------------------Snapshots----------------------------------------
@@ -54,7 +54,7 @@ info_of_processing_element_zero_to_stdout_(yes=1/no=0)_(LOG) = 1
 # RAJZEL inversion parameters
 # ----------------------------------------------------------------------
 number_of_TDFWI_iterations_(ITERMAX) = 600
-water_level_sweep_adj_(EPS_ADJ) = 0.0
+water_level_sweep_adj_(EPS_ADJ) = 0.01
 output_of_jacobian_(JACOBIAN) = gradient/gradient
 seismograms_of_measured_data_(DATA_DIR) = picked_times/marmousi_true/picks
 cosine_taper_(yes=1/no=0)_(TAPER) = 0
@@ -99,7 +99,7 @@ apply_spatial_filtering_(1=yes)_(MODEL_FILTER) = 0
 filter_length_in_gridpoints_(FILT_SIZE) = 5
 #
 #----- Step length estimation ------# 
-step_length_estimation_(Wolfe=1/Parabolic=2)_(LINESEARCH) = 1
+step_length_estimation_(Wolfe=1/Parabolic=2)_(LINESEARCH) = 2
 maximum_model_change_of_maximum_model_value_(EPS_SCALE) = 0.01 
 parameters_for_Wolfe_conditions_(C1,C2) = 1e-4, 0.9
 maximum_number_of_attemps_to_find_a_step_length_(STEPMAX) = 10

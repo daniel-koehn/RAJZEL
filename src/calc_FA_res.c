@@ -7,7 +7,7 @@
 
 #include "fd.h"
 
-float calc_FA_res(float * Tmod, float * Tobs, float * Tres, int ntr, int ishot){
+double calc_FA_res(float * Tmod, float * Tobs, float * Tres, int ntr, int ishot){
 
         /* global variables */
 	extern char DATA_DIR[STRING_SIZE];
@@ -15,7 +15,8 @@ float calc_FA_res(float * Tmod, float * Tobs, float * Tres, int ntr, int ishot){
 	/* local variables */
 	int i;
         char pickfile_char[STRING_SIZE];
-        float l2, tmp, minres;
+        float tmp, minres;
+	double l2;
 
         minres = 1e-6;
 

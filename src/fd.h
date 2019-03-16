@@ -33,7 +33,7 @@ void ass_grad(float ** waveconv, float ** waveconv_shot, float ** S, float ** la
 
 void calc_FA(float ** TT, int ** recpos, int ntr, float * Tmod);
 
-float calc_FA_res(float * Tmod, float * Tobs, float * Tres, int ntr, int ishot);
+double calc_FA_res(float * Tmod, float * Tobs, float * Tres, int ntr, int ishot);
 
 float calc_mat_change(float  **  waveconv, float **  pi, float **  pinp1, int iter, float eps_scale, int itest, int nfstart);
 
@@ -65,7 +65,7 @@ void forward(float ** S, float ** TT, float * Tmod,  float ** srcpos, int nshots
 
 void gauss_filt(float ** waveconv);
 
-float grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr, int iter);
+double grad_obj(float ** grad, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr, int iter);
 
 void grid_search(float ** Vp, float ** S, float ** TT, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr);
 
@@ -108,7 +108,7 @@ float norm_matrix(float **A, int NX, int NY);
 void note(FILE *fp);
 
 float parabolicls(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr, 
-                  int iter, float alpha, float L2);
+                  int iter, float alpha, double L2);
 
 void PCG(float ** Hgrad, float ** grad, int iter);
 
@@ -153,7 +153,7 @@ void tripd(float *d, float *e, float *b, int n);
 void  wavenumber(float ** grad);
 
 float wolfels(float ** waveconv, float ** gradp, float ** Vp, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr,
-              int iter, float alpha, float L2);
+              int iter, float alpha, double L2);
 
 void write_gridsearch(float L2, float vp0, float grad0, int count);
 

@@ -27,13 +27,15 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 	int NLBFGS_class, LBFGS_pointer, NLBFGS_vec;
 
 	/*vector for abort criterion*/
-	float * L2_hist=NULL;
+	double * L2_hist=NULL;
 
 	/* variables for workflow */
 	int nstage, stagemax, iter, iter_true;
         
         /* variables for step-length estimation */
-        float eps_scale, L2, *L2t, diff;
+        float eps_scale; 
+	double L2, *L2t, diff;
+		
 
         FILE *FP, *FP_stage, *FPL2;
 
@@ -59,7 +61,7 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 
 
 	/* memory allocation for abort criterion*/
-	L2_hist = vector(1,ITERMAX*stagemax);
+	L2_hist = dvector(1,ITERMAX*stagemax);
 
 
 	/* Variables for the l-BFGS method */
@@ -82,7 +84,7 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 	}
 
 	/* memory of L2 norm */
-	L2t = vector(1,4);
+	L2t = dvector(1,4);
 
         /* memory for gradient */
    	lam =  matrix(1,NY,1,NX);
@@ -170,13 +172,14 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 
 			   /* Estimate optimum step length ... */
 			   MPI_Barrier(MPI_COMM_WORLD);
+
 			   /* ... by line search which satisfies the Wolfe conditions */
                            if(LINESEARCH==1){
-			   eps_scale=wolfels(Hgrad,grad,Vp,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter,eps_scale,L2);}
+			   eps_scale = wolfels(Hgrad,grad,Vp,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter,eps_scale,L2);}
 			   
 			   /* ... by inexact parabolic line search */
                            if(LINESEARCH==2){
-			   eps_scale=parabolicls(Hgrad,grad,Vp,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter,eps_scale,L2);}
+			   eps_scale = parabolicls(Hgrad,grad,Vp,S,TT,lam,Tmod,Tobs,Tres,srcpos,nshots,recpos,ntr,iter,eps_scale,L2);}
 			   
 
 			   if(MYID==0){
@@ -244,8 +247,8 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
         /* memory deallocation */
 
         /* free memory for abort criterion */
-        free_vector(L2_hist,1,ITERMAX*stagemax);
-        free_vector(L2t,1,4);
+        free_dvector(L2_hist,1,ITERMAX*stagemax);
+        free_dvector(L2t,1,4);
 
         /* free memory for gradient */
         free_matrix(lam,1,NY,1,NX);

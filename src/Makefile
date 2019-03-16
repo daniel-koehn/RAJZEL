@@ -23,8 +23,8 @@ EXEC= ../bin
 CC=mpiicc 
 LFLAGS=-lm -lfftw3 -ftz -lstdc++
 CFLAGS=-O3 -xAVX -ipo -fno-fnalias -restrict
-SFLAGS=-L$//sfs/fs4/work-sh2/sungw331/fftw-3.3.4/lib
-IFLAGS=-I$//sfs/fs4/work-sh2/sungw331/fftw-3.3.4/include
+SFLAGS=-L$//sfs/fs2/work-sh2/sungw331/fftw-3.3.4/lib
+IFLAGS=-I$//sfs/fs2/work-sh2/sungw331/fftw-3.3.4/include
 
 # On Desktop computer with LinuxMint 17, OpenMPI and gcc 4.8.2
 #CC=mpicc

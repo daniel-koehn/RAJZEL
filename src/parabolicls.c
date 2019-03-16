@@ -9,7 +9,7 @@
 
 float parabolicls(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** TT, 
 float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, 
-int ** recpos, int ntr, int iter, float alpha, float L2){
+int ** recpos, int ntr, int iter, float alpha, double L2){
 
 extern int MIN_ITER,STEPMAX, NX, NY, MYID;
 extern char JACOBIAN[STRING_SIZE];

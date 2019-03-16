@@ -9,7 +9,7 @@
 
 #include "fd.h"
 
-float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr, int iter, float alpha, float L2){
+float wolfels(float ** Hgrad, float ** grad, float ** Vp, float ** S, float ** TT, float ** lam, float * Tmod, float * Tobs, float * Tres,  float ** srcpos, int nshots, int ** recpos, int ntr, int iter, float alpha, double L2){
 
 	/* declaration of global variables */
         extern int NX, NY, GRAD_METHOD, STEPMAX, MYID;

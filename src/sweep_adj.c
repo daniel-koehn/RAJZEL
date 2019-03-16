@@ -19,7 +19,7 @@ void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, 
 	float app, amp, apm, amm;
         float bpp, bmp, bpm, bmm;
         float ap, am , bp, bm;
-        float lhs, rhs, lamt;
+        float lamt, lhs, rhs;
 
 	/* sweep over FD-grid */
         h = nx1;
