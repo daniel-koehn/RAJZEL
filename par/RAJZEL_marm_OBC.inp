@@ -54,7 +54,7 @@ info_of_processing_element_zero_to_stdout_(yes=1/no=0)_(LOG) = 1
 # RAJZEL inversion parameters
 # ----------------------------------------------------------------------
 number_of_TDFWI_iterations_(ITERMAX) = 600
-water_level_sweep_adj_(EPS_ADJ) = 0.01
+water_level_sweep_adj_(EPS_ADJ) = 1e-9
 output_of_jacobian_(JACOBIAN) = gradient/gradient
 seismograms_of_measured_data_(DATA_DIR) = picked_times/marmousi_true/picks
 cosine_taper_(yes=1/no=0)_(TAPER) = 0

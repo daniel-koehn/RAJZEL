@@ -33,7 +33,7 @@ void ass_grad(float ** waveconv, float ** waveconv_shot, float ** S, float ** la
 
 void calc_FA(float ** TT, int ** recpos, int ntr, float * Tmod);
 
-double calc_FA_res(float * Tmod, float * Tobs, float * Tres, int ntr, int ishot);
+double calc_FA_res(float **TT, float * Tmod, float * Tobs, float * Tres, int ntr, int ishot, int ** recpos);
 
 float calc_mat_change(float  **  waveconv, float **  pi, float **  pinp1, int iter, float eps_scale, int itest, int nfstart);
 

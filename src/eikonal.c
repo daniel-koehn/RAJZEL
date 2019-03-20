@@ -28,8 +28,8 @@ void eikonal(float ** S, float ** TT, float * Tmod,  float ** srcpos, int ishot,
         }		           
                                       
 	/* Eikonal solver */
-	nxsrc=iround(srcpos[1][ishot]/DH);
-	nysrc=iround(srcpos[2][ishot]/DH); 
+	nxsrc = iround(srcpos[1][ishot]/DH);
+	nysrc = iround(srcpos[2][ishot]/DH); 
 	zero_travel(TT);
 
 	/* initialize traveltime field at source positions */

@@ -1,0 +1,48 @@
+Git cloning ...
+---------------
+
+... the master branch
+
+git clone https://github.com/daniel-koehn/RAJZEL.git
+
+... only the latest master branch update 
+
+git clone --depth=1 https://github.com/daniel-koehn/RAJZEL.git 
+
+... a developing branch
+
+git clone -b branch_name https://github.com/daniel-koehn/RAJZEL.git
+
+
+Update of Github RAJZEL repository
+----------------------------------
+
+Before you update the repository: 
+
+Be sure that all compiled code in /src is removed by 
+
+make clean
+
+Furthermore, all model files, log files, snap shot files, FA-pick files from 
+
+par/gradient
+par/gridsearch
+par/log
+par/model
+par/picked_times
+par/start
+par/TT
+
+are removed. The /par directory should only contain the Marmousi-II example 
+input, workflow, source and receiver files. 
+
+1. Move to RAJZEL directory
+2. git add -A
+3. git commit -m "Comment on the latest update"
+
+For a specific branch ...
+4. git push origin branch_name
+
+For master branch ...
+4. git push origin master
+

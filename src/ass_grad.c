@@ -20,7 +20,7 @@ void ass_grad(float ** grad, float ** grad_shot, float ** S, float ** lam, float
 	for (i=2;i<=NX-1;i++){
 	    for (j=2;j<=NY-1;j++){
 
-               grad_shot[j][i] = lam[j][i]*pow(S[j][i],1.0);
+               grad_shot[j][i] = lam[j][i]*pow(S[j][i],3.0);
 		    
 	    }
 	}

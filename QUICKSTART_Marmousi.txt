@@ -10,7 +10,7 @@ C-Compiler: gcc, icc (recommended)
 MPI-library: OpenMPI, Intel-MPI (recommended)
 other libraries: Fastest Fourier Transform in the West (FFTW) - https://github.com/FFTW/fftw3
 
-Seismic Unix or Matlab for seismic data and model visualization 
+Seismic Unix or Matlab or Matplotlib for seismic data and model visualization 
 
 1. Clone RAJZEL on your local machine
 
@@ -40,7 +40,7 @@ your CPU from the /par directory:
 mpirun -np 8 ../bin/rajzel RAJZEL_marm_OBC.inp FATT_workflow_marmousi.inp 
 
 The forward Eikonal solver is parallelized via a shot parallelization. Therefore, the number of MPI processes 
-should not exceed the total number of shots. For the given problem 8 cores should be sufficient. 
+should not exceed the total number of shots. For the given problem 4-8 cores should be sufficient. 
 
 7. For each shot defined in source/source_OBC_VSP.dat the first arrival traveltimes at the receiver positions defined in 
 receiver/receiver_OBC.dat are written to 
@@ -76,9 +76,31 @@ Also check if MODEL = 1D_start_marm.c is set in /src/Makefile
 
 mpirun -np 8 ../bin/rajzel RAJZEL_marm_OBC.inp FATT_workflow_marmousi.inp
 
-As defined in FATT_workflow_marmousi.inp the FATT is based on an sequential inversion workflow using Gauss-filtered 
-gradients with a filter length of 800 gridpoints and 400 gridpoints, 400 gridpoints and 200 gridpoints, 80 gridpoints 
-and 80 gridpoints in x- and y-direction, respectively. 
+As defined in FATT_workflow_marmousi.inp the FATT is based on an inversion workflow using Gauss-filtered 
+gradients with a filter length of 39 gridpoints in x-direction and 39 gridpoints in y-direction, respectively. 
+The filter size is based on the diameter of the first fresnel zone:  
+
+d_fresnel = sqrt(offset_max \lambda_min) = sqrt(offset_max min(vp)/fmax)
+
+with offset_max is the maximum offset of the acquisition geometry, \lambda_min the minimum wavelength, min(vp) the 
+minimum P-wave velocity and fmax the maximum frequency which was used to pick the first arrivals. For the Marmousi 
+model, I assumed 
+
+min(vp) = 1500 m/s
+fmax = 20 Hz
+offset_max = 8000 m
+
+leading to a diameter of the first Fresnel zone:
+
+d_fresnel = 775 m
+
+or in terms of grid points:
+
+FILT_SIZE_GRAD = round(d_fresnel / DH) = 39 grid points
+
+with DH = 20.0 m.
+
+To achieve smoother FATT models, the coherence length of the Gaussian filter has to be increased.
 
 The Vp models of the current iteration are saved in:
 
@@ -94,6 +116,6 @@ model/modelTest_vp_stage_3.bin
 
 You can visualize the results with Seismic Unix
 
-ximage n1=174 < model/modelTest_vp_stage_3.bin 
+ximage n1=174 < model/modelTest_vp_stage_1.bin 
 
-Congratulation, you just finished your first FATT with RAJZEL.
+Congratulations, you just finished your first FATT with RAJZEL.

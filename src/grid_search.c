@@ -61,7 +61,7 @@ void grid_search(float ** Vp, float ** S, float ** TT, float * Tmod, float * Tob
 			     eikonal(S,TT,Tmod,srcpos,ishot,nshots,recpos,ntr);
 
 			     /* calculate traveltime residuals at receiver positions */
-		 	     L2+=calc_FA_res(Tmod,Tobs,Tres,ntr,ishot);
+		 	     L2+=calc_FA_res(TT,Tmod,Tobs,Tres,ntr,ishot,recpos);
 		
 			     /*write_picks(Tres,ntr,ishot);*/
 				

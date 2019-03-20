@@ -54,22 +54,17 @@ void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, 
                         rhs = (amp*lam[k][h-1]-apm*lam[k][h+1])/DH + (bmp*lam[k-1][h]-bpm*lam[k+1][h])/DH;
                         
                         /* Taillandier et al. (2009) */
-                        /* lhs = (apm-amp)/DH + (bpm-bmp)/DH;
-                        rhs = (amm*lam[k][h-1]-app*lam[k][h+1])/DH + (bmm*lam[k-1][h]-bpp*lam[k+1][h])/DH; */
-
-                        lamt = rhs/(lhs+EPS_ADJ);
-                       
-
-                        /* add data residuals at receiver positions */
-                        /*for (l=1;l<=ntr;l++){
-                           
-                           if((h==recpos[1][l])&&(k==recpos[2][l])){
-			      lamt = Tres[l];
-                           }
-
-                        }*/
+                        /*lhs = (apm-amp)/DH + (bpm-bmp)/DH;
+                        rhs = (amm*lam[k][h-1]-app*lam[k][h+1])/DH + (bmm*lam[k-1][h]-bpp*lam[k+1][h])/DH;*/
+			
+			if(lhs>EPS_ADJ){
+                            lamt = rhs/lhs;
+			}else{
+			    lamt = 0.0;
+			}                       
 
                         lam[k][h] = fminf(lam[k][h],lamt);
+
                      }
 
 		        k += ndy;
@@ -78,7 +73,3 @@ void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, 
 	}
 
 }
-
-
-
-
