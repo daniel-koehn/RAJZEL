@@ -9,12 +9,12 @@
 #PBS -o DENISE.out             # Datei fuer die Standardausgabe
 #PBS -j o                      # Standard- und Fehlerausgabe in eine Datei 
 #PBS -q clmedium               # Batch-Klasse
-#
-#
-. /opt/intel/composer_xe_2013_sp1/bin/compilervars.sh intel64  # Initialisierung der Intel-Compiler Umgebung 
-. /opt/intel/impi/4.1.1.036/intel64/bin/mpivars.sh             # Initialisierung der Intel-MPI Umgebung 
-. /opt/modules/Modules/3.2.6/init/ksh                          # Initialisierung des Module-Konzeptes
-#
-# 
+
+# Initialisierung der Intel-Umgebung
+module load intel17.0.4 intelmpi17.0.4
+
 cd $WORK/DENISE-Acoustic/par
 mpirun $NQSII_MPIOPTS -np 16 ../bin/denise DENISE_meprorisk_RTM.inp RTM_workflow_meprorisk.inp > DENISE.out
+
+# Ausgabe der verbrauchten Ressourcen (Rechenzeit, Hauptspeicher) nach Jobende
+/opt/nec/nqsv/bin/qstat -f ${PBS_JOBID/0:/}
