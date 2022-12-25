@@ -39,7 +39,8 @@ step2=0;
 /* start with first guess for step length alpha */
 maxgrad = maximum_m(Hgrad,NX,NY);
   maxvp = maximum_m(Vp,NX,NY);
-  alpha = EPS_SCALE * maxvp/maxgrad;
+
+if(iter==1){alpha = EPS_SCALE * fabs(maxvp/maxgrad);}
 
 countstep=0; /* count number of forward calculations */
 L2t[1] = L2;
