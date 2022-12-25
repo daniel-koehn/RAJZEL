@@ -40,7 +40,8 @@ step2=0;
 maxgrad = maximum_m(Hgrad,NX,NY);
   maxvp = maximum_m(Vp,NX,NY);
 
-if(iter==1){alpha = EPS_SCALE * fabs(maxvp/maxgrad);}
+/*if(iter==1){alpha = EPS_SCALE * fabs(maxvp/maxgrad);}*/
+alpha = EPS_SCALE * fabs(maxvp/maxgrad);
 
 countstep=0; /* count number of forward calculations */
 L2t[1] = L2;
