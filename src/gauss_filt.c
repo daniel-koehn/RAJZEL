@@ -19,11 +19,9 @@ extern int FILT_SIZE_GRAD, FILT_SIZE_GRAD1;
 /* local variables */
 int i, j, ii, jj;
 int i1, j1, filtsize, hfsx, hfsy;
-float **model_tmp, **kernel, grad, normgauss, smooth_meter;
+float **model_tmp, kernel, grad, normgauss, smooth_meter;
 float conv;
 float r, sigmax, sigmay, sx, sy, sum=0.0;
-
-/* cp_grad_frame(waveconv); */
 	
 if (FILT_SIZE_GRAD==0)	return;
 if (!(FILT_SIZE_GRAD % 2)) {
@@ -44,11 +42,11 @@ if (!(FILT_SIZE_GRAD1 % 2)) {
 
 hfsx = abs(FILT_SIZE_GRAD)/2;
 sigmax = hfsx/2;
-sx = 2.0 * sigmax *sigmax;
+sx = 2.0 * sigmax * sigmax;
 
 hfsy = abs(FILT_SIZE_GRAD1)/2;
 sigmay = hfsy/2;
-sy = 2.0 * sigmay *sigmay;
+sy = 2.0 * sigmay * sigmay;
 
 if(MYID==0){
    printf("\n hfsx: %d \n",hfsx);
@@ -56,7 +54,6 @@ if(MYID==0){
 }
 
 model_tmp = matrix(-hfsy+1,NY+hfsy,-hfsx+1,NX+hfsx);
-kernel=matrix(1,abs(FILT_SIZE_GRAD1),1,abs(FILT_SIZE_GRAD));
 
 /* load merged model */
 for (i=1;i<=NX;i++){
@@ -96,46 +93,29 @@ for (j=NY+1;j<=NY+hfsy;j++){
 
 }
 
-/* create filter kernel */
-for (ii=-hfsx;ii<=hfsx;ii++){
-     for (jj=-hfsy;jj<=hfsy;jj++){
-         
-         kernel[jj+hfsy+1][ii+hfsx+1] = exp(-((ii*ii)/sx) - ((jj*jj)/sy));
-         sum += kernel[jj+hfsy+1][ii+hfsx+1];
-
-     }
-}
-
-/* normalize kernel */
-for (i=1;i<=FILT_SIZE_GRAD;i++){
-     for (j=1;j<=FILT_SIZE_GRAD1;j++){
-         
-         kernel[j][i] /= sum;
-
-     }
-}
-
 /* apply Gaussian filter to gradient */
 for (j=1;j<=NY;j++){
      for (i=1;i<=NX;i++){
 
           conv = 0.0;
-          /* loop over kernel*/
+	  sum = 0.0;
+	  
 	  for (ii=-hfsx;ii<=hfsx;ii++){
-	       for (jj=-hfsy;jj<=hfsy;jj++){
+     		for (jj=-hfsy;jj<=hfsy;jj++){
+         
+         	kernel = exp(-((ii*ii)/sx) - ((jj*jj)/sy));
+		conv += model_tmp[j+jj][i+ii] * kernel;
+         	sum += kernel;
 
-	            conv += model_tmp[j+jj][i+ii]*kernel[jj+hfsy+1][ii+hfsx+1];				
-
-               }
-          }
+     		}
+	  }
 
           /* output of filtered gradient */
-          waveconv[j][i] = conv;
+          waveconv[j][i] = conv/sum;
 
       }
 }
       
 free_matrix(model_tmp,-hfsy+1,NY+hfsy,-hfsx+1,NX+hfsx);
-free_matrix(kernel,1,abs(FILT_SIZE_GRAD1),1,abs(FILT_SIZE_GRAD));
 			
 }
