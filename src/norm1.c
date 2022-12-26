@@ -21,7 +21,7 @@ float norm1(float ** TT, float ** TTold){
 	for (i=1;i<=NX;i++){
 	    for (j=1;j<=NY;j++){
 	            
-	       sum += (TT[j][i]-TTold[j][i]);
+	       sum += fabs(TT[j][i]-TTold[j][i]);
 	            
 	    }
 	}

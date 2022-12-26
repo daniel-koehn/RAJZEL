@@ -26,6 +26,10 @@
 #define STRING_SIZE2 256
 #define REQUEST_COUNT 4
 
+#ifndef INF
+    #define INF 9999999
+#endif
+
 
 /* declaration of functions */
 

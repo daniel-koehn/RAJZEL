@@ -27,7 +27,7 @@ void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, 
                 k = ny1;
 		for (j=2;j<=NY-1;j++){
 
-                     if(recflag[k][h]==0){
+                     if(recflag[k][h]==0){			
 
                         /* assemble equation (3.6) in Leung & Qian (2006) */
                         ap = -(TT[k][h+1]-TT[k][h])/DH;
@@ -61,9 +61,11 @@ void sweep_adj(float ** lam, float ** TT, float * Tres, int ** recpos, int ntr, 
                             lamt = rhs/lhs;
 			}else{
 			    lamt = 0.0;
-			}                       
+			}			
 
                         lam[k][h] = fminf(lam[k][h],lamt);
+			
+			if(TT[k][h]>=INF || TT[k+1][h]>=INF || TT[k-1][h]>=INF || TT[k][h+1]>=INF || TT[k][h-1]>=INF){lam[k][h] = 0.0;}                       
 
                      }
 
