@@ -10,7 +10,7 @@
 void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float *Tres, float ** srcpos, int nshots, int ** recpos, int ntr, char *fileinp1){
 
 	/* declaration of global variables */
-        extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH;
+        extern int NX, NY, NSHOT1, NSHOT2, GRAD_METHOD, NLBFGS, MYID, ITERMAX, LINESEARCH, SPATFILTER;
         extern char MISFIT_LOG_FILE[STRING_SIZE];
         extern float PRO;
     
@@ -168,8 +168,24 @@ void fatt(float ** Vp, float ** S, float ** TT, float * Tmod, float *Tobs, float
 
 
 			   /* check if search direction is a descent direction, otherwise reset l-BFGS history */
-			   check_descent(Hgrad,grad,NLBFGS_vec,y_LBFGS,s_LBFGS,iter);
-
+			   check_descent(Hgrad,grad,NLBFGS_vec,y_LBFGS,s_LBFGS,iter);  
+			
+			   MPI_Barrier(MPI_COMM_WORLD);
+	
+		    	   if(MYID==0){
+		    
+		              /* apply Gaussian filter */
+		              if(SPATFILTER==4){
+	  		         gauss_filt(Hgrad);
+		              }
+		    
+		           }
+			   
+			   /* distribute gradient to all MPI processes */
+			   MPI_Barrier(MPI_COMM_WORLD);
+			  
+                	   exchange_grad_MPI(Hgrad);
+				
 			   /* Estimate optimum step length ... */
 			   MPI_Barrier(MPI_COMM_WORLD);
 
