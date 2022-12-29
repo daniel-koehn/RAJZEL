@@ -34,36 +34,39 @@ double calc_FA_res(float **TT, float * Tmod, float * Tobs, float * Tres, int ntr
 	for(i=1;i<=ntr;i++){
 
             /* read FA traveltime data */
-            fscanf(fp,"%e",&Tobs[i]);  
+            fscanf(fp,"%e",&Tobs[i]); 
+	    
+	    if(Tobs[i]>=0.0){ /* mute picks with negative traveltimes */
 
-            /* calculate traveltime residuals */
-	    Tres[i] = Tmod[i] - Tobs[i];
+            	/* calculate L2 traveltime residuals */
+	    	Tres[i] = Tmod[i] - Tobs[i];
 
-            //if(fabs(Tres[i])<=minres){Tres[i] = 0.0;}
+            	/*if(fabs(Tres[i])<=minres){Tres[i] = 0.0;}*/
 
-            /* calculate objective function */
-            l2 += Tres[i] * Tres[i]; 
+            	/* calculate L2 objective function */
+            	l2 += Tres[i] * Tres[i]; 
 
-	    /* scale traveltime residual according to eq. 12 in Taillandier et al. (2009)
+	    	/* scale traveltime residual according to eq. 12 in Taillandier et al. (2009)
 	       First-arrival traveltime tomography based on the adjoint-state method
 	       lambda = (Tmod - Tobs) / (n * grad(TT)) */
-	    if (recpos[2][i] <= NY - 1){
+	    	if (recpos[2][i] <= NY - 1){
 
-		gradT = (TT[recpos[2][i] + 1][recpos[1][i]] - TT[recpos[2][i]][recpos[1][i]]) / DH;
+			gradT = (TT[recpos[2][i] + 1][recpos[1][i]] - TT[recpos[2][i]][recpos[1][i]]) / DH;
 
-		if (fabs(gradT) > 0.0)
-			Tres[i] = Tres[i] / gradT;
-		else
-			Tres[i] = 0.0;
+			if (fabs(gradT) > 0.0)
+				Tres[i] = Tres[i] / gradT;
+			else
+				Tres[i] = 0.0;
 
-	    }else if (NY == recpos[2][i]){
+	    	}else if (NY == recpos[2][i]){
 
-		gradT = (TT[recpos[2][i]][recpos[1][i]] - TT[recpos[2][i] - 1][recpos[1][i]]) / DH;
+			gradT = (TT[recpos[2][i]][recpos[1][i]] - TT[recpos[2][i] - 1][recpos[1][i]]) / DH;
 
-		if (fabs(gradT) > 0.0)
-			Tres[i] = Tres[i] / gradT;
-		else
-			Tres[i] = 0.0;
+			if (fabs(gradT) > 0.0)
+				Tres[i] = Tres[i] / gradT;
+			else
+				Tres[i] = 0.0;
+	    	}
 	    }
 
 	}
